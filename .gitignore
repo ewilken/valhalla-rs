@@ -1,0 +1,6 @@
+/target
+Cargo.lock
+
+/prime_server
+
+.DS_Store
