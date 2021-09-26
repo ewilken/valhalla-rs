@@ -20,7 +20,7 @@ fn generate_bindings(out_dir: String) {
     .unwrap();
 
     b.flag_if_supported("-std=c++14")
-        .file("src/actor-wrapper.cc")
+        .file("src/actor_wrapper.cc")
         .compile("valhalla");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
