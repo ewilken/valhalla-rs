@@ -26,7 +26,18 @@ fn generate_bindings(out_dir: String) {
     println!("cargo:rerun-if-changed=src/lib.rs");
 }
 
+fn compile_protos() {
+    tonic_build::configure()
+        .build_client(false)
+        .build_server(false)
+        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
+        .format(false)
+        .compile(&["valhalla/proto/api.proto"], &["valhalla/proto/"])
+        .expect("compiling protos");
+}
+
 fn main() {
     let out_dir = compile();
     generate_bindings(out_dir);
+    compile_protos();
 }

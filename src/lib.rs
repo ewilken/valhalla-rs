@@ -1,9 +1,12 @@
+use anyhow::Result;
 use autocxx::include_cpp;
 use cxx::UniquePtr;
 
 mod config;
+pub mod proto;
 
 pub use config::Config;
+use proto::Api;
 
 include_cpp! {
     #include "actor_wrapper.h"
@@ -25,8 +28,17 @@ impl Actor {
 
         Self { inner }
     }
-    //     /// Calculates a route.
-    //     pub fn route() -> Result<()> {}
+
+    /// Calculates a route.
+    pub fn route(&mut self, api: &Api) -> Result<String> {
+        let request_string = serde_json::to_string(api)?;
+        cxx::let_cxx_string!(request_cxx_string = request_string);
+
+        let actor = self.inner.as_mut().unwrap();
+        let response = actor.route(&request_cxx_string);
+
+        Ok(response.as_ref().unwrap().to_string()) // TODO - don't allocate here
+    }
     //     /// Provides information about nodes and edges.
     //     pub fn locate() -> Result<()> {}
     //     /// Optimizes the order of a set of waypoints by time.
