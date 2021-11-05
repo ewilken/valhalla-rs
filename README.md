@@ -60,12 +60,10 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
 
     cargo build -vv
 
-    ## libgeos linking
-    if your version of geos is below 3.10.0 you have to remove the line with 
-    ´rust 
+#### libgeos linking
+If your version of geos is below 3.10.0 you have to remove the line with 
     .cxxflag("-DGEOS_INLINE")
-    ´
-    in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388 .
+in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388 .
 
 ## License
 
