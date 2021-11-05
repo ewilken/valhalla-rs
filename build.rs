@@ -1,6 +1,7 @@
 fn compile() -> String {
     let dst = cmake::Config::new("valhalla")
         // .define("ENABLE_PYTHON_BINDINGS", "ON")
+        .cxxflag("-DGEOS_INLINE")
         .build();
 
     dst.display().to_string()
