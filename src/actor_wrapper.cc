@@ -43,34 +43,34 @@ struct simplified_actor_t : public valhalla::tyr::actor_t {
   std::string route(const std::string& request_str) {
     return valhalla::tyr::actor_t::route(request_str, nullptr, nullptr);
   };
-  std::string locate(const std::string& request_str) {
-    return valhalla::tyr::actor_t::locate(request_str, nullptr, nullptr);
-  };
-  std::string optimized_route(const std::string& request_str) {
-    return valhalla::tyr::actor_t::optimized_route(request_str, nullptr, nullptr);
-  };
-  std::string matrix(const std::string& request_str) {
-    return valhalla::tyr::actor_t::matrix(request_str, nullptr, nullptr);
-  };
-  std::string isochrone(const std::string& request_str) {
-    return valhalla::tyr::actor_t::isochrone(request_str, nullptr, nullptr);
-  };
-  std::string trace_route(const std::string& request_str) {
-    return valhalla::tyr::actor_t::trace_route(request_str, nullptr, nullptr);
-  };
-  std::string trace_attributes(const std::string& request_str) {
-    return valhalla::tyr::actor_t::trace_attributes(request_str, nullptr, nullptr);
-  };
-  std::string height(const std::string& request_str) {
-    return valhalla::tyr::actor_t::height(request_str, nullptr, nullptr);
-  };
-  std::string transit_available(const std::string& request_str) {
-    return valhalla::tyr::actor_t::transit_available(request_str, nullptr, nullptr);
-  };
-  std::string expansion(const std::string& request_str) {
-    return valhalla::tyr::actor_t::expansion(request_str, nullptr, nullptr);
-  };
-  std::string centroid(const std::string& request_str) {
-    return valhalla::tyr::actor_t::centroid(request_str, nullptr, nullptr);
-  };
+  // std::string locate(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::locate(request_str, nullptr, nullptr);
+  // };
+  // std::string optimized_route(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::optimized_route(request_str, nullptr, nullptr);
+  // };
+  // std::string matrix(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::matrix(request_str, nullptr, nullptr);
+  // };
+  // std::string isochrone(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::isochrone(request_str, nullptr, nullptr);
+  // };
+  // std::string trace_route(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::trace_route(request_str, nullptr, nullptr);
+  // };
+  // std::string trace_attributes(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::trace_attributes(request_str, nullptr, nullptr);
+  // };
+  // std::string height(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::height(request_str, nullptr, nullptr);
+  // };
+  // std::string transit_available(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::transit_available(request_str, nullptr, nullptr);
+  // };
+  // std::string expansion(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::expansion(request_str, nullptr, nullptr);
+  // };
+  // std::string centroid(const std::string& request_str) {
+  //   return valhalla::tyr::actor_t::centroid(request_str, nullptr, nullptr);
+  // };
 };
