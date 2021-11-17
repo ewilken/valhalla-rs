@@ -1,16 +1,8 @@
 fn compile() -> String {
     let dst = cmake::Config::new("valhalla")
         // .define("ENABLE_PYTHON_BINDINGS", "ON")
-        // .cxxflag("-DGEOS_INLINE")
-        .define("CMAKE_BUILD_TYPE", "Release")
-        .define("ENABLE_PYTHON_BINDINGS", "OFF")
-        .define("ENABLE_TOOLS", "OFF")
-        .define("ENABLE_HTTP", "OFF")
-        .define("ENABLE_SERVICES", "OFF")
-        .define("ENABLE_DATA_TOOLS", "OFF")
-        .define("ENABLE_STATIC_LIBRARY_MODULES", "ON")
-        .define("BUILD_SHARED_LIBS", "OFF")
-        .cxxflag("-fPIC")
+        .cxxflag("-DGEOS_INLINE")
+        .define("CMAKE_BUILD_TYPE", "Debug") 
         .build();
 
     dst.display().to_string()
@@ -18,64 +10,25 @@ fn compile() -> String {
 
 fn generate_bindings(out_dir: String) {
     let includes = vec![
-            "src".to_string(),
-            format!("{}/include", out_dir),
-            "valhalla/third_party/date/include".to_string(),
-            "valhalla/third_party/rapidjson/include".to_string(),
-        ];
-        
+        "src".to_string(),
+        "include".to_string(),
+        format!("{}/include", out_dir),
+        "valhalla/third_party/date/include".to_string(),
+        "valhalla/third_party/rapidjson/include".to_string(),
+    ];
+
     let mut b = autocxx_build::Builder::new("src/lib.rs", &includes)
-		.extra_clang_args(&["-std=c++14"])
-		.expect_build();
-    
-    println!("cargo:rustc-link-search=native={}/build/src", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla");
-
-    println!("cargo:rustc-link-search=native={}/build/src/baldr", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-baldr");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/meili", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-meili");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/midgard", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-midgard");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/odin", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-odin");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/sif", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-sif");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/skadi", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-skadi");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/tyr", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-tyr");
-
-
-    println!("cargo:rustc-link-search=native={}/build/src/thor", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-thor");
-
-    println!("cargo:rustc-link-search=native={}/build/src/valhalla/proto", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-proto");
+        .extra_clang_args(&["-std=c++14"])
+        .expect_build();
 
     b.opt_level(2)
-    .cpp(true)
-    .flag_if_supported("-std=c++14")
-    .flag_if_supported("/std:c++14")
-    .file("src/actor_wrapper.cc")
-    .compile("valhalla-wrapper");
+        .cpp(true)
+        .flag_if_supported("-std=c++14")
+        .flag_if_supported("/std:c++14")
+        .file("src/valhalla.cc")
+        .compile("valhalla-wrapper");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
-
-    println!("cargo:rustc-link-search=native={}", out_dir);
-    println!("cargo:rustc-link-lib=static=valhalla-wrapper");
 }
 
 fn compile_protos() {
@@ -89,7 +42,23 @@ fn compile_protos() {
 }
 
 fn main() {
-    let out_dir = compile();
+    println!("cargo:rustc-link-lib=valhalla");
+    println!("cargo:rustc-link-lib=prime_server");
+    println!("cargo:rustc-link-lib=protoc");
+    println!("cargo:rustc-link-lib=protobuf");
+    println!("cargo:rustc-link-lib=zmq");
+    println!("cargo:rustc-link-lib=pthread");
+    println!("cargo:rustc-link-lib=z");
+    println!("cargo:rustc-link-lib=boost_program_options");
+    println!("cargo:rustc-link-lib=curl");
+    println!("cargo:rustc-link-lib=spatialite");
+    println!("cargo:rustc-link-lib=sqlite3");
+    println!("cargo:rustc-link-lib=luajit-5.1");
+    println!("cargo:rustc-link-lib=geos");
+    println!("cargo:rustc-link-lib=gssapi_krb5");
+
+    //let out_dir = compile();^
+    let out_dir = "test".to_string();
     generate_bindings(out_dir);
     compile_protos();
 }

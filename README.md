@@ -36,6 +36,11 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
 
 ## Development
 
+### Testing
+
+    cargo test -vvv -- --nocapture
+
+
 ### macOS
 
     brew install automake cmake libtool protobuf-c boost-python libspatialite pkg-config sqlite3 jq curl wget czmq lz4 spatialite-tools unzip luajit bash coreutils binutils
