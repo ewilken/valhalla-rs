@@ -29,6 +29,9 @@ fn generate_bindings(out_dir: String) {
         .compile("valhalla-wrapper");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
+
+    println!("cargo:rustc-link-search={}/build", out_dir);
+    println!("cargo:rustc-link-lib=valhalla");
 }
 
 fn compile_protos() {
@@ -42,7 +45,6 @@ fn compile_protos() {
 }
 
 fn main() {
-    println!("cargo:rustc-link-lib=valhalla");
     println!("cargo:rustc-link-lib=prime_server");
     println!("cargo:rustc-link-lib=protoc");
     println!("cargo:rustc-link-lib=protobuf");
@@ -57,8 +59,7 @@ fn main() {
     println!("cargo:rustc-link-lib=geos");
     println!("cargo:rustc-link-lib=gssapi_krb5");
 
-    //let out_dir = compile();^
-    let out_dir = "test".to_string();
+    let out_dir = compile();
     generate_bindings(out_dir);
     compile_protos();
 }
