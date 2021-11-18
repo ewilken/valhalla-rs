@@ -1,8 +1,13 @@
 fn compile() -> String {
+    let build_type = if Ok("release".to_owned()) == std::env::var("PROFILE") {
+        "Release"
+    } else {
+        "Debug"
+    };
     let dst = cmake::Config::new("valhalla")
         // .define("ENABLE_PYTHON_BINDINGS", "ON")
         .cxxflag("-DGEOS_INLINE")
-        .define("CMAKE_BUILD_TYPE", "Debug") 
+        .define("CMAKE_BUILD_TYPE", build_type)
         .build();
 
     dst.display().to_string()
@@ -30,7 +35,7 @@ fn generate_bindings(out_dir: String) {
 
     println!("cargo:rerun-if-changed=src/lib.rs");
 
-    println!("cargo:rustc-link-search={}/build", out_dir);
+    println!("cargo:rustc-link-search={}/lib", out_dir);
     println!("cargo:rustc-link-lib=valhalla");
 }
 
@@ -60,6 +65,7 @@ fn main() {
     println!("cargo:rustc-link-lib=gssapi_krb5");
 
     let out_dir = compile();
+    println!("OUT_DIR: {}", out_dir);
     generate_bindings(out_dir);
     compile_protos();
 }

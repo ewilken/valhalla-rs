@@ -27,7 +27,7 @@ mod tests {
         use crate::Config;
         use std::{fs::File, io::BufReader};
 
-        cxx::let_cxx_string!(config_cxx_string = "valhalla.json");
+        cxx::let_cxx_string!(config_cxx_string = "valhalla/valhalla.json");
         let client = ffi::new_valhalla_client(&config_cxx_string);
 
         let request_raw = r#"
