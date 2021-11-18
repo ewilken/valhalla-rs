@@ -1,4 +1,4 @@
-#include "/Users/philippscheff/work/code/valhalla-rs/include/valhalla.h"
+#include "valhalla.h"
 
 #include "valhalla/tyr/actor.h"
 #include "valhalla/baldr/rapidjson_utils.h"

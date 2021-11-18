@@ -9,7 +9,7 @@ pub use config::Config;
 use proto::Api;
 
 include_cpp! {
-    #include "/Users/philippscheff/work/code/valhalla-rs/include/valhalla.h"
+    #include "valhalla.h"
 
     safety!(unsafe)
 
