@@ -4,9 +4,11 @@ use cxx::UniquePtr;
 
 mod config;
 pub mod proto;
+pub mod route_inputs;
 
 pub use config::Config;
-use proto::Api;
+pub use route_inputs::RoutingOptions;
+//use proto::Api;
 
 include_cpp! {
     #include "valhalla.h"
@@ -17,47 +19,64 @@ include_cpp! {
     generate!("new_valhalla_client")
 }
 
+pub struct Actor {
+    inner: UniquePtr<ffi::ValhallaClient>,
+}
+
+impl Actor {
+    pub fn new(config: &str) -> Self {
+        cxx::let_cxx_string!(config_cxx_string = config);
+        let inner = ffi::new_valhalla_client(&config_cxx_string);
+
+        Self { inner }
+    }
+
+    // Calculates a route.
+    pub fn route(&mut self, request: &RoutingOptions) -> Result<String> {
+        let request_string = serde_json::to_string(request)?;
+        cxx::let_cxx_string!(request_cxx_string = request_string);
+
+        let actor = self.inner.as_mut().unwrap();
+
+        let response = actor.route(&request_cxx_string);
+
+        Ok(response) // TODO - don't allocate here
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::ffi;
+    use crate::route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions};
+    use crate::{Actor, Config};
     use cxx::let_cxx_string;
 
     #[test]
     fn test_route() {
-        use crate::Config;
-        use std::{fs::File, io::BufReader};
+        let mut actor = Actor::new("valhalla/valhalla.json");
 
-        cxx::let_cxx_string!(config_cxx_string = "valhalla/valhalla.json");
-        let client = ffi::new_valhalla_client(&config_cxx_string);
+        let request = RoutingOptions {
+            locations: vec![
+                Location {
+                    lat: Some(52.499078),
+                    lon: Some(13.418230),
+                    name: Some("Kottbusser Tor".into()),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.487331),
+                    lon: Some(13.425042),
+                    name: Some("Hermannplatz".into()),
+                    ..Default::default()
+                },
+            ],
+            costing: Some(CostingModels::AUTO.as_string()),
+            units: Some("km".to_string()),
+            id: Some("kotti_to_hermannplatz".into()),
+            ..Default::default()
+        };
 
-        let request_raw = r#"
-        	{
-           "locations":[
-              {
-                 "lat":52.499078,
-                 "lon":13.418230,
-                 "name":"Kottbusser Tor",
-                 "type":"break"
-              },
-              {
-                 "lat":52.487331,
-                 "lon":13.425042,
-                 "name":"Hermannplatz",
-                 "type":"break"
-              }
-           ],
-           "costing":"auto",
-           "costing_options":{
-              "auto":{
-                 "country_crossing_penalty":2000.0
-              }
-           },
-           "units":"miles",
-           "id":"my_work_route"
-            }"#;
+        let response = actor.route(&request).unwrap();
 
-        cxx::let_cxx_string!(request_cxx = request_raw);
-        let response = client.as_ref().unwrap().route(&request_cxx);
-        println!("route: {:?}", response);
+        println!("{}", response);
     }
 }
