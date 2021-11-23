@@ -82,10 +82,10 @@ pub enum LocationType {
 impl LocationType {
     pub fn as_string(&self) -> String {
         match *self {
-            CostingModels::BREAK => "break".to_string(),
-            CostingModels::THROUGH => "through".to_string(),
-            CostingModels::VIA => "via".to_string(),
-            CostingModels::BREAK_THROUGH => "break_through".to_string(),
+            LocationType::BREAK => "break".to_string(),
+            LocationType::THROUGH => "through".to_string(),
+            LocationType::VIA => "via".to_string(),
+            LocationType::BREAK_THROUGH => "break_through".to_string(),
         }
     }
 }
@@ -100,9 +100,9 @@ pub enum PreferredSide {
 impl PreferredSide {
     pub fn as_string(&self) -> String {
         match *self {
-            CostingModels::SAME => "same".to_string(),
-            CostingModels::OPPOSITE => "opposite".to_string(),
-            CostingModels::EITHER => "either".to_string(),
+            PreferredSide::SAME => "same".to_string(),
+            PreferredSide::OPPOSITE => "opposite".to_string(),
+            PreferredSide::EITHER => "either".to_string(),
         }
     }
 }
@@ -132,7 +132,7 @@ pub struct CostingOptions {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Default)]
-pub struct AutomobileOtions {
+pub struct AutomobileOptions {
     pub maneuver_penalty: Option<u32>,
     pub gate_cost: Option<u32>,
     pub gate_penalty: Option<u32>,
@@ -167,7 +167,7 @@ pub struct VehicleOptions {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Default)]
-pub struct VehicleOptions {
+pub struct BicycleOptions {
     pub bicycle_type: Option<BicyleType>,
     pub cycling_speed: Option<f32>,
     pub use_roads: Option<f32>,
@@ -193,11 +193,11 @@ pub enum BicyleType {
 impl BicyleType {
     pub fn as_string(&self) -> String {
         match *self {
-            CostingModels::HYBRID => "hybrid".to_string(),
-            CostingModels::ROAD => "road".to_string(),
-            CostingModels::CITY => "city".to_string(),
-            CostingModels::CROSS => "cross".to_string(),
-            CostingModels::MOUNTAIN => "mountain".to_string(),
+            BicyleType::HYBRID => "hybrid".to_string(),
+            BicyleType::ROAD => "road".to_string(),
+            BicyleType::CITY => "city".to_string(),
+            BicyleType::CROSS => "cross".to_string(),
+            BicyleType::MOUNTAIN => "mountain".to_string(),
         }
     }
 }

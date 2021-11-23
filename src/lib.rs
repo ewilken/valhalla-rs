@@ -47,8 +47,7 @@ impl Actor {
 #[cfg(test)]
 mod tests {
     use crate::route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions};
-    use crate::{Actor, Config};
-    use cxx::let_cxx_string;
+    use crate::Actor;
 
     #[test]
     fn test_route() {
