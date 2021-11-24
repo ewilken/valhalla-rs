@@ -46,8 +46,10 @@ impl Actor {
 
 #[cfg(test)]
 mod tests {
-    use crate::route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions};
-    use crate::Actor;
+    use crate::{
+        route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions},
+        Actor,
+    };
 
     #[test]
     fn test_route() {

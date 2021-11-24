@@ -4,9 +4,14 @@ fn compile() -> String {
     } else {
         "Debug"
     };
-    let dst = cmake::Config::new("valhalla")
-        // .define("ENABLE_PYTHON_BINDINGS", "ON")
-        .cxxflag("-DGEOS_INLINE")
+
+    let mut conf = cmake::Config::new("valhalla");
+    if cfg!(target_os = "macos") {
+        conf.cxxflag("-DGEOS_INLINE");
+    }
+
+    let dst = conf
+        .define("ENABLE_PYTHON_BINDINGS", "OFF")
         .define("CMAKE_BUILD_TYPE", build_type)
         .build();
 
@@ -37,6 +42,19 @@ fn generate_bindings(out_dir: String) {
 
     println!("cargo:rustc-link-search={}/lib", out_dir);
     println!("cargo:rustc-link-lib=valhalla");
+
+    println!("cargo:rustc-link-lib=prime_server");
+    println!("cargo:rustc-link-lib=protoc");
+    println!("cargo:rustc-link-lib=protobuf");
+    println!("cargo:rustc-link-lib=zmq");
+    println!("cargo:rustc-link-lib=z");
+    println!("cargo:rustc-link-lib=boost_program_options");
+    println!("cargo:rustc-link-lib=curl");
+    println!("cargo:rustc-link-lib=spatialite");
+    println!("cargo:rustc-link-lib=sqlite3");
+    println!("cargo:rustc-link-lib=luajit-5.1");
+    println!("cargo:rustc-link-lib=geos");
+    println!("cargo:rustc-link-lib=gssapi_krb5");
 }
 
 fn compile_protos() {
@@ -50,20 +68,6 @@ fn compile_protos() {
 }
 
 fn main() {
-    println!("cargo:rustc-link-lib=prime_server");
-    println!("cargo:rustc-link-lib=protoc");
-    println!("cargo:rustc-link-lib=protobuf");
-    println!("cargo:rustc-link-lib=zmq");
-    println!("cargo:rustc-link-lib=pthread");
-    println!("cargo:rustc-link-lib=z");
-    println!("cargo:rustc-link-lib=boost_program_options");
-    println!("cargo:rustc-link-lib=curl");
-    println!("cargo:rustc-link-lib=spatialite");
-    println!("cargo:rustc-link-lib=sqlite3");
-    println!("cargo:rustc-link-lib=luajit-5.1");
-    println!("cargo:rustc-link-lib=geos");
-    println!("cargo:rustc-link-lib=gssapi_krb5");
-
     let out_dir = compile();
     println!("OUT_DIR: {}", out_dir);
     generate_bindings(out_dir);
