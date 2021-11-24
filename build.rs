@@ -1,28 +1,17 @@
-#[cfg(not(macos))]
 fn compile() -> String {
     let build_type = if Ok("release".to_owned()) == std::env::var("PROFILE") {
         "Release"
     } else {
         "Debug"
     };
-    let dst = cmake::Config::new("valhalla")
-         .define("ENABLE_PYTHON_BINDINGS", "OFF")
-        .define("CMAKE_BUILD_TYPE", build_type)
-        .build();
 
-    dst.display().to_string()
-}
+    let mut conf = cmake::Config::new("valhalla");
+    if cfg!(target_os = "macos") {
+        conf.cxxflag("-DGEOS_INLINE");
+    }
 
-#[cfg(macos)]
-fn compile() -> String {
-    let build_type = if Ok("release".to_owned()) == std::env::var("PROFILE") {
-        "Release"
-    } else {
-        "Debug"
-    };
-    let dst = cmake::Config::new("valhalla")
-         .define("ENABLE_PYTHON_BINDINGS", "OFF")
-        .cxxflag("-DGEOS_INLINE")
+    let dst = conf
+        .define("ENABLE_PYTHON_BINDINGS", "OFF")
         .define("CMAKE_BUILD_TYPE", build_type)
         .build();
 
