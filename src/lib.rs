@@ -1,4 +1,6 @@
-use anyhow::Result;
+use std::{fmt, error};
+
+use anyhow::{Error, Result};
 use autocxx::include_cpp;
 use cxx::UniquePtr;
 
@@ -19,6 +21,17 @@ include_cpp! {
     generate!("new_valhalla_client")
 }
 
+#[derive(Debug)]
+pub struct NotDefined;
+
+impl fmt::Display for NotDefined {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "valhalla not defined")
+    }
+}
+
+impl error::Error for NotDefined {}
+
 pub struct Actor {
     inner: UniquePtr<ffi::ValhallaClient>,
 }
@@ -36,18 +49,16 @@ impl Actor {
         let request_string = serde_json::to_string(request)?;
         cxx::let_cxx_string!(request_cxx_string = request_string);
 
-        let actor = self.inner.as_mut().unwrap();
-
-        let response = actor.route(&request_cxx_string);
-
-        Ok(response) // TODO - don't allocate here
+        self.inner.as_mut()
+            .ok_or(Error::new(NotDefined))
+            .map(|a| a.route(&request_cxx_string))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions},
+        route_inputs::{CostingModels, Location, RoutingOptions},
         Actor,
     };
 
