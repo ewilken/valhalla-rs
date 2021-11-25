@@ -47,7 +47,7 @@ impl Actor {
 #[cfg(test)]
 mod tests {
     use crate::{
-        route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions},
+        route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions, Units},
         Actor,
     };
 
@@ -70,8 +70,8 @@ mod tests {
                     ..Default::default()
                 },
             ],
-            costing: Some(CostingModels::AUTO.as_string()),
-            units: Some("km".to_string()),
+            costing: Some(CostingModels::AUTO),
+            units: Some(Units::KILOMETERS),
             id: Some("kotti_to_hermannplatz".into()),
             ..Default::default()
         };

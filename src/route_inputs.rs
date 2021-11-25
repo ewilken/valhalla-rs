@@ -3,11 +3,11 @@
 #[derive(serde::Serialize, serde::Deserialize, Default)]
 pub struct RoutingOptions {
     pub locations: Vec<Location>,
-    pub costing: Option<String>,
+    pub costing: Option<CostingModels>,
     pub costing_options: Option<CostingOptions>,
-    pub units: Option<String>,
+    pub units: Option<Units>,
     pub language: Option<String>,
-    pub directions_type: Option<String>,
+    pub directions_type: Option<DirectionsType>,
     // DEPRECATED: Should use directions_type
     pub narrative: Option<String>,
     //pub exclude_locations: Option<String>,
@@ -20,6 +20,7 @@ pub struct RoutingOptions {
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum DirectionsType {
     NONE,
     MANEUVERS,
@@ -27,14 +28,13 @@ pub enum DirectionsType {
     INSTRUCTIONS,
 }
 
-impl DirectionsType {
-    pub fn as_string(&self) -> String {
-        match *self {
-            DirectionsType::NONE => "none".to_string(),
-            DirectionsType::MANEUVERS => "maneuvers".to_string(),
-            DirectionsType::INSTRUCTIONS => "instructions".to_string(),
-        }
-    }
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Units {
+    #[serde(rename = "mi")]
+    MILES,
+    #[serde(rename = "km")]
+    KILOMETERS,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Default)]
@@ -72,6 +72,7 @@ pub struct Location {
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum LocationType {
     BREAK,
     THROUGH,
@@ -79,49 +80,23 @@ pub enum LocationType {
     BREAK_THROUGH,
 }
 
-impl LocationType {
-    pub fn as_string(&self) -> String {
-        match *self {
-            LocationType::BREAK => "break".to_string(),
-            LocationType::THROUGH => "through".to_string(),
-            LocationType::VIA => "via".to_string(),
-            LocationType::BREAK_THROUGH => "break_through".to_string(),
-        }
-    }
-}
-
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum PreferredSide {
+    #[serde(rename = "same")]
     SAME,
+    #[serde(rename = "opposite")]
     OPPOSITE,
+    #[serde(rename = "either")]
     EITHER,
 }
 
-impl PreferredSide {
-    pub fn as_string(&self) -> String {
-        match *self {
-            PreferredSide::SAME => "same".to_string(),
-            PreferredSide::OPPOSITE => "opposite".to_string(),
-            PreferredSide::EITHER => "either".to_string(),
-        }
-    }
-}
-
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum CostingModels {
     AUTO,
     BICYCLE,
     BUS,
-}
-
-impl CostingModels {
-    pub fn as_string(&self) -> String {
-        match *self {
-            CostingModels::AUTO => "auto".to_string(),
-            CostingModels::BICYCLE => "bicycle".to_string(),
-            CostingModels::BUS => "bus".to_string(),
-        }
-    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Default)]
@@ -181,6 +156,7 @@ pub struct BicycleOptions {
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum BicyleType {
     // is default type
     HYBRID,
@@ -188,16 +164,4 @@ pub enum BicyleType {
     CITY,
     CROSS,
     MOUNTAIN,
-}
-
-impl BicyleType {
-    pub fn as_string(&self) -> String {
-        match *self {
-            BicyleType::HYBRID => "hybrid".to_string(),
-            BicyleType::ROAD => "road".to_string(),
-            BicyleType::CITY => "city".to_string(),
-            BicyleType::CROSS => "cross".to_string(),
-            BicyleType::MOUNTAIN => "mountain".to_string(),
-        }
-    }
 }
