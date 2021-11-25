@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-// taken from valhalla/scripts/valhalla_build_config
+// derived from valhalla/scripts/valhalla_build_config
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
     pub mjolnir: MjolnirConfig,
     pub loki: LokiConfig,
@@ -51,6 +51,50 @@ pub struct MjolnirConfig {
     pub logging: LoggingConfig,
 }
 
+impl Default for MjolnirConfig {
+    fn default() -> Self {
+        Self {
+            max_cache_size: 1000000000,
+            id_table_size: 1300000000,
+            use_lru_mem_cache: false,
+            lru_mem_cache_hard_control: false,
+            use_simple_mem_cache: false,
+            user_agent: None,
+            tile_url: None,
+            tile_url_gz: None,
+            concurrency: None,
+            tile_dir: "/data/valhalla".to_string(),
+            tile_extract: "/data/valhalla/tiles.tar".to_string(),
+            traffic_extract: "/data/valhalla/traffic.tar".to_string(),
+            incident_dir: None,
+            incident_log: None,
+            shortcut_caching: None,
+            admin: "/data/valhalla/admin.sqlite".to_string(),
+            timezone: "/data/valhalla/tz_world.sqlite".to_string(),
+            transit_dir: "/data/valhalla/transit".to_string(),
+            transit_bounding_box: None,
+            hierarchy: true,
+            shortcuts: true,
+            include_driveways: true,
+            include_bicycle: true,
+            include_pedestrian: true,
+            include_driving: true,
+            import_bike_share_stations: false,
+            global_synchronized_cache: false,
+            max_concurrent_reader_users: 1,
+            reclassify_links: true,
+            default_speeds_config: None,
+            data_processing: MjolnirDataProcessingConfig::default(),
+            logging: LoggingConfig {
+                r#type: "std_out".to_string(),
+                color: true,
+                file_name: "path_to_some_file.log".to_string(),
+                long_request: None,
+            },
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LoggingConfig {
     pub r#type: String,
@@ -71,6 +115,21 @@ pub struct MjolnirDataProcessingConfig {
     pub use_rest_area: bool,
 }
 
+impl Default for MjolnirDataProcessingConfig {
+    fn default() -> Self {
+        Self {
+            infer_internal_intersections: true,
+            infer_turn_channels: true,
+            apply_country_overrides: true,
+            use_admin_db: true,
+            use_direction_on_ways: false,
+            allow_alt_name: false,
+            use_urban_tag: false,
+            use_rest_area: false,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LokiConfig {
     pub actions: Vec<String>,
@@ -78,6 +137,38 @@ pub struct LokiConfig {
     pub service_defaults: LokiServiceDefaultsConfig,
     pub logging: LoggingConfig,
     pub service: ServiceConfig,
+}
+
+impl Default for LokiConfig {
+    fn default() -> Self {
+        Self {
+            actions: vec![
+                "locate".to_string(),
+                "route".to_string(),
+                "height".to_string(),
+                "sources_to_targets".to_string(),
+                "optimized_route".to_string(),
+                "isochrone".to_string(),
+                "trace_route".to_string(),
+                "trace_attributes".to_string(),
+                "transit_available".to_string(),
+                "expansion".to_string(),
+                "centroid".to_string(),
+                "status".to_string(),
+            ],
+            use_connectivity: true,
+            service_defaults: LokiServiceDefaultsConfig::default(),
+            logging: LoggingConfig {
+                r#type: "std_out".to_string(),
+                color: true,
+                file_name: "path_to_some_file.log".to_string(),
+                long_request: Some(100.0),
+            },
+            service: ServiceConfig {
+                proxy: "ipc:///tmp/loki".to_string(),
+            },
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -89,6 +180,20 @@ pub struct LokiServiceDefaultsConfig {
     pub street_side_tolerance: i32,
     pub street_side_max_distance: i32,
     pub heading_tolerance: i32,
+}
+
+impl Default for LokiServiceDefaultsConfig {
+    fn default() -> Self {
+        Self {
+            radius: 0,
+            minimum_reachability: 50,
+            search_cutoff: 35000,
+            node_snap_tolerance: 5,
+            street_side_tolerance: 5,
+            street_side_max_distance: 1000,
+            heading_tolerance: 60,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -105,10 +210,45 @@ pub struct ThorConfig {
     pub extended_search: bool,
 }
 
+impl Default for ThorConfig {
+    fn default() -> Self {
+        Self {
+            logging: LoggingConfig {
+                r#type: "std_out".to_string(),
+                color: true,
+                file_name: "path_to_some_file.log".to_string(),
+                long_request: Some(110.0),
+            },
+            source_to_target_algorithm: "select_optimal".to_string(),
+            service: ServiceConfig {
+                proxy: "ipc:///tmp/thor".to_string(),
+            },
+            max_reserved_labels_count: 1000000,
+            extended_search: false,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OdinConfig {
     pub logging: LoggingConfig,
     pub service: ServiceConfig,
+}
+
+impl Default for OdinConfig {
+    fn default() -> Self {
+        Self {
+            logging: LoggingConfig {
+                r#type: "std_out".to_string(),
+                color: true,
+                file_name: "path_to_some_file.log".to_string(),
+                long_request: None,
+            },
+            service: ServiceConfig {
+                proxy: "ipc:///tmp/odin".to_string(),
+            },
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -126,7 +266,69 @@ pub struct MeiliConfig {
     pub grid: GridConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Default for MeiliConfig {
+    fn default() -> Self {
+        Self {
+            mode: "auto".to_string(),
+            customizable: vec![
+                "mode".to_string(),
+                "search_radius".to_string(),
+                "turn_penalty_factor".to_string(),
+                "gps_accuracy".to_string(),
+                "interpolation_distance".to_string(),
+                "sigma_z".to_string(),
+                "beta".to_string(),
+                "max_route_distance_factor".to_string(),
+                "max_route_time_factor".to_string(),
+            ],
+            verbose: false,
+            default: MeiliModeConfig {
+                sigma_z: Some(4.07),
+                gps_accuracy: Some(5.0),
+                beta: Some(3),
+                max_route_distance_factor: Some(5),
+                max_route_time_factor: Some(5),
+                max_search_radius: Some(100),
+                breakage_distance: Some(2000),
+                interpolation_distance: Some(10),
+                search_radius: Some(50),
+                geometry: Some(false),
+                route: Some(true),
+                turn_penalty_factor: Some(0),
+            },
+            auto: MeiliModeConfig {
+                turn_penalty_factor: Some(200),
+                search_radius: Some(50),
+                ..Default::default()
+            },
+            pedestrian: MeiliModeConfig {
+                turn_penalty_factor: Some(100),
+                search_radius: Some(50),
+                ..Default::default()
+            },
+            bicycle: MeiliModeConfig {
+                turn_penalty_factor: Some(140),
+                ..Default::default()
+            },
+            multimodal: MeiliModeConfig {
+                turn_penalty_factor: Some(70),
+                ..Default::default()
+            },
+            logging: LoggingConfig {
+                r#type: "std_out".to_string(),
+                color: true,
+                file_name: "path_to_some_file.log".to_string(),
+                long_request: None,
+            },
+            service: ServiceConfig {
+                proxy: "ipc:///tmp/meili".to_string(),
+            },
+            grid: GridConfig::default(),
+        }
+    }
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct MeiliModeConfig {
     pub sigma_z: Option<f32>,
     pub gps_accuracy: Option<f32>,
@@ -148,7 +350,16 @@ pub struct GridConfig {
     pub cache_size: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Default for GridConfig {
+    fn default() -> Self {
+        Self {
+            size: 500,
+            cache_size: 100240,
+        }
+    }
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct HttpdConfig {
     pub service: HttpdServiceConfig,
 }
@@ -162,6 +373,18 @@ pub struct HttpdServiceConfig {
     pub shutdown_seconds: i32,
 }
 
+impl Default for HttpdServiceConfig {
+    fn default() -> Self {
+        Self {
+            listen: "tcp://*:8002".to_string(),
+            loopback: "ipc:///tmp/loopback".to_string(),
+            interrupt: "ipc:///tmp/interrupt".to_string(),
+            drain_seconds: 28,
+            shutdown_seconds: 1,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StatsdConfig {
     pub host: Option<String>,
@@ -171,9 +394,29 @@ pub struct StatsdConfig {
     pub tags: Option<Vec<String>>,
 }
 
+impl Default for StatsdConfig {
+    fn default() -> Self {
+        Self {
+            host: None,
+            port: 8125,
+            prefix: "valhalla".to_string(),
+            batch_size: None,
+            tags: None,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AdditionalDataConfig {
     pub elevation: String,
+}
+
+impl Default for AdditionalDataConfig {
+    fn default() -> Self {
+        Self {
+            elevation: "/data/valhalla/elevation/".to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -204,7 +447,141 @@ pub struct ServiceLimitsConfig {
     pub centroid: ServiceLimitConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Default for ServiceLimitsConfig {
+    fn default() -> Self {
+        Self {
+            max_exclude_locations: 50,
+            max_reachability: 100,
+            max_radius: 200,
+            max_timedep_distance: 500000,
+            max_alternates: 2,
+            max_exclude_polygons_length: 10000,
+
+            auto: ServiceLimitConfig {
+                max_distance: Some(5000000.0),
+                max_locations: Some(20),
+                max_matrix_distance: Some(400000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            auto_shorter: ServiceLimitConfig {
+                max_distance: Some(5000000.0),
+                max_locations: Some(20),
+                max_matrix_distance: Some(400000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            bus: ServiceLimitConfig {
+                max_distance: Some(5000000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(400000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            hov: ServiceLimitConfig {
+                max_distance: Some(5000000.0),
+                max_locations: Some(20),
+                max_matrix_distance: Some(400000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            taxi: ServiceLimitConfig {
+                max_distance: Some(5000000.0),
+                max_locations: Some(20),
+                max_matrix_distance: Some(400000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            pedestrian: ServiceLimitConfig {
+                max_distance: Some(250000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(200000.0),
+                max_matrix_locations: Some(50),
+                min_transit_walking_distance: Some(1),
+                max_transit_walking_distance: Some(10000),
+                ..Default::default()
+            },
+            motor_scooter: ServiceLimitConfig {
+                max_distance: Some(500000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(200000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            motorcycle: ServiceLimitConfig {
+                max_distance: Some(500000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(200000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            bicycle: ServiceLimitConfig {
+                max_distance: Some(500000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(200000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            multimodal: ServiceLimitConfig {
+                max_distance: Some(500000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(0.0),
+                max_matrix_locations: Some(0),
+                ..Default::default()
+            },
+            transit: ServiceLimitConfig {
+                max_distance: Some(500000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(200000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            truck: ServiceLimitConfig {
+                max_distance: Some(5000000.0),
+                max_locations: Some(20),
+                max_matrix_distance: Some(400000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            skadi: ServiceLimitConfig {
+                max_shape: Some(750000),
+                min_resample: Some(10.0),
+                ..Default::default()
+            },
+            isochrone: ServiceLimitConfig {
+                max_contours: Some(4),
+                max_time_contour: Some(120),
+                max_distance: Some(25000.0),
+                max_locations: Some(1),
+                max_distance_contour: Some(200),
+                ..Default::default()
+            },
+            trace: ServiceLimitConfig {
+                max_distance: Some(200000.0),
+                max_gps_accuracy: Some(100.0),
+                max_search_radius: Some(100.0),
+                max_shape: Some(16000),
+                max_best_paths: Some(4),
+                max_best_paths_shape: Some(100),
+                ..Default::default()
+            },
+            bikeshare: ServiceLimitConfig {
+                max_distance: Some(500000.0),
+                max_locations: Some(50),
+                max_matrix_distance: Some(200000.0),
+                max_matrix_locations: Some(50),
+                ..Default::default()
+            },
+            centroid: ServiceLimitConfig {
+                max_distance: Some(200000.0),
+                max_locations: Some(5),
+                ..Default::default()
+            },
+        }
+    }
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ServiceLimitConfig {
     pub max_distance: Option<f32>,
     pub max_locations: Option<i32>,

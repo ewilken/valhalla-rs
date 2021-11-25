@@ -3,19 +3,26 @@ name = "valhalla"
 version = "3.1.3+rs.1"
 authors = ["Elias Wilken <elias@wlkn.io>"]
 edition = "2018"
-description = "Rust wrapper for the Valhalla routing engine"
+description = "Rust wrapper around the Valhalla routing engine"
 readme = "README.md"
 repository = "https://github.com/ewilken/valhalla-rs"
 license = "MIT/Apache-2.0"
 keywords = ["Valhalla", "OpenStreetMap", "routing"]
 
 [dependencies]
-autocxx = "0.11"
-cxx = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+anyhow = "1.0.45"
+autocxx = { git = "https://github.com/google/autocxx.git", version = "0.13.0" }
+cc = "1.0.71"
+cxx = "1.0.51"
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.71"
+tonic = "0.5"
+prost = "0.8"
 
 [build-dependencies]
-autocxx-build = "0.11"
-cmake = "0.1"
+anyhow = "1.0.45"
+cc = "1.0.71"
+autocxx-build = { git = "https://github.com/google/autocxx.git", version = "0.13.0" }
+cmake = "0.1.46"
 cxx-build = "1.0"
+tonic-build = "0.5"
