@@ -11,6 +11,10 @@ fn compile() -> String {
     }
 
     let dst = conf
+        .define("ENABLE_TESTS", "OFF")
+        .define("ENABLE_BENCHMARKS", "OFF")
+        .define("ENABLE_HTTP", "OFF")
+        .define("ENABLE_SERVICES", "OFF")
         .define("ENABLE_PYTHON_BINDINGS", "OFF")
         .define("CMAKE_BUILD_TYPE", build_type)
         .build();
@@ -43,7 +47,7 @@ fn generate_bindings(out_dir: String) {
     println!("cargo:rustc-link-search={}/lib", out_dir);
     println!("cargo:rustc-link-lib=valhalla");
 
-    println!("cargo:rustc-link-lib=prime_server");
+    //println!("cargo:rustc-link-lib=prime_server");
     println!("cargo:rustc-link-lib=protoc");
     println!("cargo:rustc-link-lib=protobuf");
     println!("cargo:rustc-link-lib=zmq");

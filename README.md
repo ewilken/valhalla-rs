@@ -70,6 +70,20 @@ If your version of geos is below 3.10.0 you have to remove the line with
     .cxxflag("-DGEOS_INLINE")
 in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388 .
 
+### Linux (`.deb` capable distros)
+
+```bash
+sudo apt install cmake make libtool pkg-config llvm-dev libclang-dev clang curl unzip jq lcov protobuf-compiler \
+	vim-common locales libboost-all-dev libcurl4-openssl-dev zlib1g-dev liblz4-dev libprotobuf-dev libgeos-dev \
+	libgeos++-dev libluajit-5.1-dev libspatialite-dev libsqlite3-dev wget sqlite3 spatialite-bin
+```
+
+You need to switch to clang if you have gcc installed
+```bash
+sudo update-alternatives --config cc
+sudo update-alternatives --config cc++
+```
+
 ## License
 
 `valhalla-rs` is licensed under either of

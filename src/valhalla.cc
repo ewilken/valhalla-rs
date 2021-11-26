@@ -78,3 +78,4 @@ rust::string ValhallaClient::centroid(const std::string &request) const {
 std::unique_ptr<ValhallaClient> new_valhalla_client(const std::string &json) {
   return std::unique_ptr<ValhallaClient>(new ValhallaClient(json));
 }
+

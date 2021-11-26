@@ -24,3 +24,4 @@ private:
 };
 
 std::unique_ptr<ValhallaClient> new_valhalla_client(const std::string &json);
+
