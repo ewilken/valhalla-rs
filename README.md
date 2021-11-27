@@ -66,22 +66,21 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
     cargo build -vv
 
 #### libgeos linking
-If your version of geos is below 3.10.0 you have to remove the line with 
+If your version of geos is below 3.10.0 you have to remove the line with
     .cxxflag("-DGEOS_INLINE")
 in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388 .
 
 ### Linux (`.deb` capable distros)
 
 ```bash
-sudo apt install cmake make libtool pkg-config llvm-dev libclang-dev clang curl unzip jq lcov protobuf-compiler \
-	vim-common locales libboost-all-dev libcurl4-openssl-dev zlib1g-dev liblz4-dev libprotobuf-dev libgeos-dev \
-	libgeos++-dev libluajit-5.1-dev libspatialite-dev libsqlite3-dev wget sqlite3 spatialite-bin
+sudo apt install libcurl4-openssl-dev protobuf-compiler libprotobuf-dev \
+	libboost-all-dev libsqlite3-dev libspatialite-dev libgeos-dev libgeos++-dev \
+	libluajit-5.1-dev libclang-dev clang libkrb5-dev libzmq3-dev
 ```
 
-You need to switch to clang if you have gcc installed
+Also, you need to create a symbolic link for the `protoc` library to avoid the following error: `/usr/bin/ld: cannot find -lprotoc`
 ```bash
-sudo update-alternatives --config cc
-sudo update-alternatives --config cc++
+sudo ln -s /usr/lib/x86_64-linux-gnu/libprotoc.so.23.0.4 /usr/lib/x86_64-linux-gnu/libprotoc.so
 ```
 
 ## License
