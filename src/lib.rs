@@ -32,28 +32,74 @@ impl Actor {
     }
 
     // Calculates a route.
-    pub fn route(&mut self, request: &RoutingOptions) -> Result<String> {
+    pub fn route(&self, request: &RoutingOptions) -> Result<String> {
         let request_string = serde_json::to_string(request)?;
         cxx::let_cxx_string!(request_cxx_string = request_string);
 
-        let actor = self.inner.as_mut().unwrap();
+        Ok(self.inner.route(&request_cxx_string))
+    }
 
-        let response = actor.route(&request_cxx_string);
+    pub fn locate(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.locate(&rq_str)
+    }
 
-        Ok(response) // TODO - don't allocate here
+    pub fn optimized_route(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.optimized_route(&rq_str)
+    }
+
+    pub fn matrix(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.matrix(&rq_str)
+    }
+
+    pub fn isochrone(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.isochrone(&rq_str)
+    }
+
+    pub fn trace_route(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.trace_route(&rq_str)
+    }
+
+    pub fn trace_attributes(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.trace_attributes(&rq_str)
+    }
+
+    pub fn height(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.height(&rq_str)
+    }
+
+    pub fn transit_available(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.transit_available(&rq_str)
+    }
+
+    pub fn expansion(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.expansion(&rq_str)
+    }
+
+    pub fn centroid(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.centroid(&rq_str)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions},
+        route_inputs::{CostingModels, Location, RoutingOptions},
         Actor,
     };
 
     #[test]
     fn test_route() {
-        let mut actor = Actor::new("valhalla/valhalla.json");
+        let actor = Actor::new("valhalla/valhalla.json");
 
         let request = RoutingOptions {
             locations: vec![

@@ -1,12 +1,22 @@
 #pragma once
+#include "cxx.h"
 #include <memory>
 #include <string>
-#include "cxx.h"
 
 class ValhallaClient {
 public:
-   ValhallaClient(const std::string &json);
-   rust::string route(const std::string &request) const;
+  ValhallaClient(const std::string &json);
+  rust::string route(const std::string &request) const;
+  rust::string locate(const std::string &request) const;
+  rust::string optimized_route(const std::string &request) const;
+  rust::string matrix(const std::string &request) const;
+  rust::string isochrone(const std::string &request) const;
+  rust::string trace_route(const std::string &request) const;
+  rust::string trace_attributes(const std::string &request) const;
+  rust::string height(const std::string &request) const;
+  rust::string transit_available(const std::string &request) const;
+  rust::string expansion(const std::string &request) const;
+  rust::string centroid(const std::string &request) const;
 
 private:
   class impl;
