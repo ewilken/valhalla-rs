@@ -73,6 +73,11 @@ rust::string ValhallaClient::expansion(const std::string &request) const {
 
 rust::string ValhallaClient::centroid(const std::string &request) const {
   return this->impl->actor->centroid(request);
+
+rust::string ValhallaClient::route_proto(const uint8_t* request_pointer, const size_t request_size) const {
+  //const uint8_t* request_pointer = &request[0];
+  //const size_t request_size = request.size();
+  return this->impl->actor->route_proto(request_pointer, request_size);
 }
 
 std::unique_ptr<ValhallaClient> new_valhalla_client(const std::string &json) {

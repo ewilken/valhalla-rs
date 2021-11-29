@@ -66,7 +66,7 @@ fn compile_protos() {
         .build_client(false)
         .build_server(false)
         .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
-        .format(false)
+        .format(true)
         .compile(&["valhalla/proto/api.proto"], &["valhalla/proto/"])
         .expect("compiling protos");
 }

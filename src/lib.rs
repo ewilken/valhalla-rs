@@ -7,8 +7,9 @@ pub mod proto;
 pub mod route_inputs;
 
 pub use config::Config;
+use prost::Message;
+use proto::{options::Units, Api, Costing, CostingOptions, LatLng, Location, Options};
 pub use route_inputs::RoutingOptions;
-//use proto::Api;
 
 include_cpp! {
     #include "valhalla.h"
@@ -29,6 +30,20 @@ impl Actor {
         let inner = ffi::new_valhalla_client(&config_cxx_string);
 
         Self { inner }
+    }
+
+    // Calculates a route.
+    pub fn route_proto(&self, request: &Api) -> Result<String> {
+        let request = request.encode_to_vec();
+
+        let actor = self.inner.as_mut().unwrap();
+
+        let request_pointer = request.as_ptr();
+        let request_size = request.len() as std::os::raw::c_ulong;
+
+        let response = unsafe { actor.route_proto(request_pointer, autocxx::c_ulong(request_size)) };
+
+        Ok(response) // TODO - don't allocate here
     }
 
     // Calculates a route.
@@ -93,7 +108,16 @@ impl Actor {
 #[cfg(test)]
 mod tests {
     use crate::{
-        route_inputs::{CostingModels, Location, RoutingOptions},
+        proto::{
+            options::Units,
+            Api,
+            Costing,
+            CostingOptions as ProtoCostingOptions,
+            LatLng,
+            Location as ProtoLocation,
+            Options,
+        },
+        route_inputs::{CostingModels, CostingOptions, Location, RoutingOptions},
         Actor,
     };
 
@@ -123,6 +147,45 @@ mod tests {
         };
 
         let response = actor.route(&request).unwrap();
+
+        println!("{}", response);
+    }
+
+    #[test]
+    fn test_route_proto() {
+        let request = Api {
+            options: Some(Options {
+                locations: vec![
+                    ProtoLocation {
+                        ll: Some(LatLng {
+                            lat: Some(52.499078),
+                            lng: Some(13.418230),
+                        }),
+                        name: Some("Kottbusser Tor".into()),
+                        ..Default::default()
+                    },
+                    ProtoLocation {
+                        ll: Some(LatLng {
+                            lat: Some(52.487331),
+                            lng: Some(13.425042),
+                        }),
+                        name: Some("Hermannplatz".into()),
+                        ..Default::default()
+                    },
+                ],
+                costing: Some(0),
+                costing_options: vec![ProtoCostingOptions {
+                    country_crossing_penalty: Some(2000.0),
+                    ..Default::default()
+                }],
+                units: Some(Units::Kilometers as i32),
+                id: Some("kotti_to_hermannplatz".into()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let mut actor = Actor::new("valhalla/valhalla.json");
+        let response = actor.route_proto(&request).unwrap();
 
         println!("{}", response);
     }

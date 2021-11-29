@@ -7,6 +7,7 @@ class ValhallaClient {
 public:
   ValhallaClient(const std::string &json);
   rust::string route(const std::string &request) const;
+  rust::string route_proto(const uint8_t* request_pointer, const size_t request_size) const;
   rust::string locate(const std::string &request) const;
   rust::string optimized_route(const std::string &request) const;
   rust::string matrix(const std::string &request) const;
