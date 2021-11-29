@@ -36,12 +36,10 @@ impl Actor {
     pub fn route_proto(&self, request: &Api) -> Result<String> {
         let request = request.encode_to_vec();
 
-        let actor = self.inner.as_mut().unwrap();
-
         let request_pointer = request.as_ptr();
         let request_size = request.len() as std::os::raw::c_ulong;
 
-        let response = unsafe { actor.route_proto(request_pointer, autocxx::c_ulong(request_size)) };
+        let response = unsafe { self.inner.route_proto(request_pointer, autocxx::c_ulong(request_size)) };
 
         Ok(response) // TODO - don't allocate here
     }
