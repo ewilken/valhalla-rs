@@ -46,21 +46,6 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
     brew install automake cmake libtool protobuf-c boost-python libspatialite pkg-config sqlite3 jq curl wget czmq lz4 spatialite-tools unzip luajit bash coreutils binutils
     export PATH="/usr/local/opt/binutils/bin:/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
-    # install prime_server
-    git clone https://github.com/kevinkreiser/prime_server.git
-    cd prime_server
-    git checkout 0.7.0
-    git submodule update --init --recursive
-    ./autogen.sh
-    aclocal -I m4
-    autoheader --warnings=no-portability
-    autoconf --warnings=no-portability
-    automake --force-missing --add-missing
-    ./configure
-    make test -j8
-    sudo make install
-    cd .. && rm -rf prime_server
-
     git submodule update --init --recursive
 
     cargo build -vv
