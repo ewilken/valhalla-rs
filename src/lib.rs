@@ -19,11 +19,11 @@ include_cpp! {
     generate!("new_valhalla_client")
 }
 
-pub struct Actor {
+pub struct ActorNative {
     inner: UniquePtr<ffi::ValhallaClient>,
 }
 
-impl Actor {
+impl ActorNative {
     pub fn new(config: &str) -> Self {
         cxx::let_cxx_string!(config_cxx_string = config);
         let inner = ffi::new_valhalla_client(&config_cxx_string);
@@ -32,13 +32,9 @@ impl Actor {
     }
 
     // Calculates a route.
-    pub fn route(&self, request: &RoutingOptions) -> Result<RoutingOutput> {
-        let request_string = serde_json::to_string(request)?;
-        cxx::let_cxx_string!(request_cxx_string = request_string);
-
-        let rs: String = self.inner.route(&request_cxx_string);
-        println!("route: {}", &rs);
-        serde_json::from_str::<RoutingOutput>(&rs).map_err(Error::from)
+    pub fn route(&self, request: &str) -> String {
+        cxx::let_cxx_string!(rq_str = request);
+        self.inner.route(&rq_str)
     }
 
     pub fn locate(&self, request: &str) -> String {
@@ -92,6 +88,25 @@ impl Actor {
     }
 }
 
+pub struct Actor {
+    inner: ActorNative,
+}
+
+
+impl Actor {
+    pub fn new(config: &str) -> Self {
+        Self { inner: ActorNative::new(config) }
+    }
+
+    // Calculates a route.
+    pub fn route(&self, request: &RoutingOptions) -> Result<RoutingOutput> {
+        let req = serde_json::to_string(request)?;
+        let res = self.inner.route(&req);
+
+        serde_json::from_str::<RoutingOutput>(&res).map_err(Error::from)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -127,6 +142,5 @@ mod tests {
         let routing = actor.route(&request).unwrap();
 
         println!("{:?}", routing);
-        assert!(false);
     }
 }
