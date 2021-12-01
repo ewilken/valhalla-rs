@@ -46,29 +46,27 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
     brew install automake cmake libtool protobuf-c boost-python libspatialite pkg-config sqlite3 jq curl wget czmq lz4 spatialite-tools unzip luajit bash coreutils binutils
     export PATH="/usr/local/opt/binutils/bin:/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
-    # install prime_server
-    git clone https://github.com/kevinkreiser/prime_server.git
-    cd prime_server
-    git checkout 0.7.0
-    git submodule update --init --recursive
-    ./autogen.sh
-    aclocal -I m4
-    autoheader --warnings=no-portability
-    autoconf --warnings=no-portability
-    automake --force-missing --add-missing
-    ./configure
-    make test -j8
-    sudo make install
-    cd .. && rm -rf prime_server
-
     git submodule update --init --recursive
 
     cargo build -vv
 
 #### libgeos linking
-If your version of geos is below 3.10.0 you have to remove the line with 
+If your version of geos is below 3.10.0 you have to remove the line with
     .cxxflag("-DGEOS_INLINE")
 in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388 .
+
+### Linux (`.deb` capable distros)
+
+```bash
+sudo apt install libcurl4-openssl-dev protobuf-compiler libprotobuf-dev \
+	libboost-all-dev libsqlite3-dev libspatialite-dev libgeos-dev libgeos++-dev \
+	libluajit-5.1-dev libclang-dev clang libkrb5-dev libzmq3-dev
+```
+
+Also, you need to create a symbolic link for the `protoc` library to avoid the following error: `/usr/bin/ld: cannot find -lprotoc`
+```bash
+sudo ln -s /usr/lib/x86_64-linux-gnu/libprotoc.so.23.0.4 /usr/lib/x86_64-linux-gnu/libprotoc.so
+```
 
 ## License
 
