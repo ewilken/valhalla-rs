@@ -1,6 +1,6 @@
 // Routing inputs with respect to: https://valhalla.readthedocs.io/en/latest/api/turn-by-turn/api-reference/
-use serde::{Serialize, Deserialize};
-use serde_repr::{Serialize_repr, Deserialize_repr};
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct RequestOptions {
@@ -31,9 +31,7 @@ pub enum DirectionsType {
 }
 
 impl Default for DirectionsType {
-    fn default() -> Self {
-        DirectionsType::Instructions
-    }
+    fn default() -> Self { DirectionsType::Instructions }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -169,11 +167,8 @@ pub enum BicyleType {
 }
 
 impl Default for BicyleType {
-    fn default() -> Self {
-        BicyleType::Hybrid
-    }
+    fn default() -> Self { BicyleType::Hybrid }
 }
-
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
 #[repr(u8)]
@@ -307,7 +302,7 @@ pub struct MatrixDistance {
     pub distance: f64,
     pub time: f64,
     pub to_index: usize,
-    pub from_index:usize,
+    pub from_index: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -341,7 +336,6 @@ pub struct Geometry {
 pub struct Feature {
     pub geometry: Geometry,
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IsochroneOutput {

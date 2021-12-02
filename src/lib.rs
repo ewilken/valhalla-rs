@@ -1,13 +1,13 @@
-use anyhow::{Result, Error};
+use anyhow::{Error, Result};
 use autocxx::include_cpp;
 use cxx::UniquePtr;
 
 mod config;
-pub mod proto;
 pub mod data;
+pub mod proto;
 
 pub use config::Config;
-use data::{MatrixInput, MatrixOutput, IsochroneInput, IsochroneOutput};
+use data::{IsochroneInput, IsochroneOutput, MatrixInput, MatrixOutput};
 pub use data::{RequestOptions, RoutingOutput};
 //use proto::Api;
 
@@ -93,10 +93,11 @@ pub struct Actor {
     inner: ActorNative,
 }
 
-
 impl Actor {
     pub fn new(config: &str) -> Self {
-        Self { inner: ActorNative::new(config) }
+        Self {
+            inner: ActorNative::new(config),
+        }
     }
 
     // Calculates a route.
@@ -135,35 +136,23 @@ impl Actor {
         serde_json::from_str(&res).map_err(Error::from)
     }
 
-    pub fn trace_route(&self, request: &str) -> String {
-        self.inner.trace_route(&request)
-    }
+    pub fn trace_route(&self, request: &str) -> String { self.inner.trace_route(&request) }
 
-    pub fn trace_attributes(&self, request: &str) -> String {
-        self.inner.trace_attributes(&request)
-    }
+    pub fn trace_attributes(&self, request: &str) -> String { self.inner.trace_attributes(&request) }
 
-    pub fn height(&self, request: &str) -> String {
-        self.inner.height(&request)
-    }
+    pub fn height(&self, request: &str) -> String { self.inner.height(&request) }
 
-    pub fn transit_available(&self, request: &str) -> String {
-        self.inner.transit_available(&request)
-    }
+    pub fn transit_available(&self, request: &str) -> String { self.inner.transit_available(&request) }
 
-    pub fn expansion(&self, request: &str) -> String {
-        self.inner.expansion(&request)
-    }
+    pub fn expansion(&self, request: &str) -> String { self.inner.expansion(&request) }
 
-    pub fn centroid(&self, request: &str) -> String {
-        self.inner.centroid(&request)
-    }
+    pub fn centroid(&self, request: &str) -> String { self.inner.centroid(&request) }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        data::{CostingModels, Location, RequestOptions, Units, MatrixInput, IsochroneInput, Contour},
+        data::{Contour, CostingModels, IsochroneInput, Location, MatrixInput, RequestOptions, Units},
         Actor,
     };
 
@@ -265,13 +254,11 @@ mod tests {
         let actor = Actor::new("valhalla.json");
 
         let request = MatrixInput {
-            sources: vec![
-                Location {
-                    lat: Some(52.499078),
-                    lon: Some(13.418230),
-                    ..Default::default()
-                },
-            ],
+            sources: vec![Location {
+                lat: Some(52.499078),
+                lon: Some(13.418230),
+                ..Default::default()
+            }],
             targets: vec![
                 Location {
                     lat: Some(52.4929306),
@@ -298,13 +285,11 @@ mod tests {
         let actor = Actor::new("valhalla.json");
 
         let request = IsochroneInput {
-            locations: vec![
-                Location {
-                    lat: Some(52.499078),
-                    lon: Some(13.418230),
-                    ..Default::default()
-                },
-            ],
+            locations: vec![Location {
+                lat: Some(52.499078),
+                lon: Some(13.418230),
+                ..Default::default()
+            }],
             costing: Some(CostingModels::Auto),
             contours: vec![Contour {
                 time: 15.0,
