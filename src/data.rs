@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use serde_repr::{Serialize_repr, Deserialize_repr};
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct RoutingOptions {
+pub struct RequestOptions {
     pub locations: Vec<Location>,
     pub costing: Option<CostingModels>,
     pub costing_options: Option<CostingOptions>,
@@ -291,4 +291,59 @@ pub struct Trip {
 pub struct RoutingOutput {
     pub trip: Trip,
     pub id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct MatrixInput {
+    pub sources: Vec<Location>,
+    pub targets: Vec<Location>,
+    pub costing: Option<CostingModels>,
+    pub id: Option<String>,
+    pub units: Option<Units>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MatrixDistance {
+    pub distance: f64,
+    pub time: f64,
+    pub to_index: usize,
+    pub from_index:usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct MatrixOutput {
+    pub sources: Vec<Vec<Location>>,
+    pub targets: Vec<Vec<Location>>,
+    pub sources_to_targets: Vec<Vec<MatrixDistance>>,
+    pub units: Option<Units>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Contour {
+    pub time: f64,
+    pub color: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IsochroneInput {
+    pub locations: Vec<Location>,
+    pub costing: Option<CostingModels>,
+    pub contours: Vec<Contour>,
+    pub id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Geometry {
+    pub coordinates: Vec<[f64; 2]>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Feature {
+    pub geometry: Geometry,
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IsochroneOutput {
+    pub features: Vec<Feature>,
 }

@@ -4,10 +4,11 @@ use cxx::UniquePtr;
 
 mod config;
 pub mod proto;
-pub mod route;
+pub mod data;
 
 pub use config::Config;
-pub use route::{RoutingOptions, RoutingOutput};
+use data::{MatrixInput, MatrixOutput, IsochroneInput, IsochroneOutput};
+pub use data::{RequestOptions, RoutingOutput};
 //use proto::Api;
 
 include_cpp! {
@@ -99,26 +100,79 @@ impl Actor {
     }
 
     // Calculates a route.
-    pub fn route(&self, request: &RoutingOptions) -> Result<RoutingOutput> {
+    pub fn route(&self, request: &RequestOptions) -> Result<RoutingOutput> {
         let req = serde_json::to_string(request)?;
         let res = self.inner.route(&req);
 
-        serde_json::from_str::<RoutingOutput>(&res).map_err(Error::from)
+        serde_json::from_str(&res).map_err(Error::from)
+    }
+
+    pub fn locate(&self, request: &RequestOptions) -> Result<RoutingOutput> {
+        let req = serde_json::to_string(request)?;
+        let res = self.inner.route(&req);
+
+        serde_json::from_str(&res).map_err(Error::from)
+    }
+
+    pub fn optimized_route(&self, request: &RequestOptions) -> Result<RoutingOutput> {
+        let req = serde_json::to_string(request)?;
+        let res = self.inner.optimized_route(&req);
+
+        serde_json::from_str(&res).map_err(Error::from)
+    }
+
+    pub fn matrix(&self, request: &MatrixInput) -> Result<MatrixOutput> {
+        let req = serde_json::to_string(request)?;
+        let res = self.inner.matrix(&req);
+
+        serde_json::from_str(&res).map_err(Error::from)
+    }
+
+    pub fn isochrone(&self, request: &IsochroneInput) -> Result<IsochroneOutput> {
+        let req = serde_json::to_string(request)?;
+        let res = self.inner.isochrone(&req);
+
+        serde_json::from_str(&res).map_err(Error::from)
+    }
+
+    pub fn trace_route(&self, request: &str) -> String {
+        self.inner.trace_route(&request)
+    }
+
+    pub fn trace_attributes(&self, request: &str) -> String {
+        self.inner.trace_attributes(&request)
+    }
+
+    pub fn height(&self, request: &str) -> String {
+        self.inner.height(&request)
+    }
+
+    pub fn transit_available(&self, request: &str) -> String {
+        self.inner.transit_available(&request)
+    }
+
+    pub fn expansion(&self, request: &str) -> String {
+        self.inner.expansion(&request)
+    }
+
+    pub fn centroid(&self, request: &str) -> String {
+        self.inner.centroid(&request)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        route::{CostingModels, Location, RoutingOptions, Units},
+        data::{CostingModels, Location, RequestOptions, Units, MatrixInput, IsochroneInput, Contour},
         Actor,
     };
 
+    #[ignore]
     #[test]
     fn test_route() {
         let actor = Actor::new("valhalla.json");
 
-        let request = RoutingOptions {
+        let request = RequestOptions {
             locations: vec![
                 Location {
                     lat: Some(52.499078),
@@ -139,8 +193,131 @@ mod tests {
             ..Default::default()
         };
 
-        let routing = actor.route(&request).unwrap();
+        let r = actor.route(&request).unwrap();
+        println!("{:?}", r);
+    }
 
-        println!("{:?}", routing);
+    #[ignore]
+    #[test]
+    fn test_locate() {
+        let actor = Actor::new("valhalla.json");
+
+        let request = RequestOptions {
+            locations: vec![
+                Location {
+                    lat: Some(52.499078),
+                    lon: Some(13.418230),
+                    name: Some("Kottbusser Tor".into()),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.487331),
+                    lon: Some(13.425042),
+                    name: Some("Hermannplatz".into()),
+                    ..Default::default()
+                },
+            ],
+            costing: Some(CostingModels::Auto),
+            units: Some(Units::Kilometers),
+            id: Some("kotti_to_hermannplatz".into()),
+            ..Default::default()
+        };
+
+        let r = actor.locate(&request).unwrap();
+        println!("{:?}", r);
+    }
+
+    #[ignore]
+    #[test]
+    fn test_optimazed_route() {
+        let actor = Actor::new("valhalla.json");
+
+        let request = RequestOptions {
+            locations: vec![
+                Location {
+                    lat: Some(52.499078),
+                    lon: Some(13.418230),
+                    name: Some("Kottbusser Tor".into()),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.4929306),
+                    lon: Some(13.4211985),
+                    name: Some("Bürknerstraße".into()),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.487331),
+                    lon: Some(13.425042),
+                    name: Some("Hermannplatz".into()),
+                    ..Default::default()
+                },
+            ],
+            costing: Some(CostingModels::Auto),
+            units: Some(Units::Kilometers),
+            id: Some("kotti_to_hermannplatz".into()),
+            ..Default::default()
+        };
+
+        let r = actor.optimized_route(&request).unwrap();
+        println!("{:?}", r);
+    }
+
+    #[ignore]
+    #[test]
+    fn test_matrix() {
+        let actor = Actor::new("valhalla.json");
+
+        let request = MatrixInput {
+            sources: vec![
+                Location {
+                    lat: Some(52.499078),
+                    lon: Some(13.418230),
+                    ..Default::default()
+                },
+            ],
+            targets: vec![
+                Location {
+                    lat: Some(52.4929306),
+                    lon: Some(13.4211985),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.487331),
+                    lon: Some(13.425042),
+                    ..Default::default()
+                },
+            ],
+            costing: Some(CostingModels::Auto),
+            units: Some(Units::Miles),
+            ..Default::default()
+        };
+
+        let r = actor.matrix(&request).unwrap();
+        println!("{:?}", r);
+    }
+
+    #[test]
+    fn test_isochrone() {
+        let actor = Actor::new("valhalla.json");
+
+        let request = IsochroneInput {
+            locations: vec![
+                Location {
+                    lat: Some(52.499078),
+                    lon: Some(13.418230),
+                    ..Default::default()
+                },
+            ],
+            costing: Some(CostingModels::Auto),
+            contours: vec![Contour {
+                time: 15.0,
+                color: None,
+            }],
+            id: None,
+        };
+
+        let r = actor.isochrone(&request).unwrap();
+        println!("{:?}", r);
     }
 }
