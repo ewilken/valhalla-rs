@@ -167,7 +167,6 @@ mod tests {
         Actor,
     };
 
-    #[ignore]
     #[test]
     fn test_route() {
         let actor = Actor::new("valhalla.json");
@@ -197,7 +196,6 @@ mod tests {
         println!("{:?}", r);
     }
 
-    #[ignore]
     #[test]
     fn test_locate() {
         let actor = Actor::new("valhalla.json");
@@ -227,7 +225,6 @@ mod tests {
         println!("{:?}", r);
     }
 
-    #[ignore]
     #[test]
     fn test_optimazed_route() {
         let actor = Actor::new("valhalla.json");
@@ -263,7 +260,6 @@ mod tests {
         println!("{:?}", r);
     }
 
-    #[ignore]
     #[test]
     fn test_matrix() {
         let actor = Actor::new("valhalla.json");
