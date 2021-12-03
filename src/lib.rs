@@ -7,7 +7,7 @@ pub mod data;
 pub mod proto;
 
 pub use config::Config;
-use data::{IsochroneInput, IsochroneOutput, MatrixInput, MatrixOutput};
+use data::{HeightRequest, HeightResponse, IsochroneInput, IsochroneOutput, MatrixInput, MatrixOutput};
 pub use data::{RequestOptions, RoutingOutput};
 //use proto::Api;
 
@@ -140,19 +140,23 @@ impl Actor {
 
     pub fn trace_attributes(&self, request: &str) -> String { self.inner.trace_attributes(&request) }
 
-    pub fn height(&self, request: &str) -> String { self.inner.height(&request) }
+    /// The height method of the [elevation service][elevation-service].
+    ///
+    /// [elevation-service]: https://valhalla.readthedocs.io/en/latest/api/elevation/api-reference/#elevation-service-api-reference
+    pub fn height(&self, request: &HeightRequest) -> Result<HeightResponse> {
+        let req = serde_json::to_string(request)?;
+        let res = self.inner.height(&req);
+
+        serde_json::from_str(&res).map_err(Error::from)
+    }
 
     pub fn transit_available(&self, request: &str) -> String { self.inner.transit_available(&request) }
-
-    pub fn expansion(&self, request: &str) -> String { self.inner.expansion(&request) }
-
-    pub fn centroid(&self, request: &str) -> String { self.inner.centroid(&request) }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
-        data::{Contour, CostingModels, IsochroneInput, Location, MatrixInput, RequestOptions, Units},
+        data::{Contour, CostingModels, HeightRequest, IsochroneInput, Location, MatrixInput, RequestOptions, Units},
         Actor,
     };
 
@@ -300,5 +304,40 @@ mod tests {
 
         let r = actor.isochrone(&request).unwrap();
         println!("{:?}", r);
+    }
+
+    #[test]
+    fn test_height() {
+        let actor = Actor::new("valhalla.json");
+        let mut req = HeightRequest {
+            range: Some(true),
+            shape: vec![
+                Location {
+                    lat: Some(52.499078),
+                    lon: Some(13.41823),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.4929306),
+                    lon: Some(13.4211985),
+                    ..Default::default()
+                },
+                Location {
+                    lat: Some(52.487331),
+                    lon: Some(13.425042),
+                    ..Default::default()
+                },
+            ],
+            id: None,
+        };
+
+        let res = actor.height(&req).unwrap();
+        assert!(res.range_height.is_some());
+        assert!(res.height.is_none());
+
+        req.range = None;
+        let res = actor.height(&req).unwrap();
+        assert!(res.range_height.is_none());
+        assert!(res.height.is_some());
     }
 }

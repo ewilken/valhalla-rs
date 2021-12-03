@@ -341,3 +341,17 @@ pub struct Feature {
 pub struct IsochroneOutput {
     pub features: Vec<Feature>,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HeightRequest {
+    pub range: Option<bool>,
+    pub shape: Vec<Location>,
+    pub id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HeightResponse {
+    pub shape: Vec<Location>,
+    pub range_height: Option<Vec<[Option<f64>; 2]>>,
+    pub height: Option<Vec<Option<f64>>>,
+}
