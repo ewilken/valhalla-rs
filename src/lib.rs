@@ -100,64 +100,51 @@ impl Actor {
         }
     }
 
-    // Calculates a route.
+    /// Calculates a route.
     pub fn route(&self, request: &RequestOptions) -> Result<RoutingOutput> {
-        let req = serde_json::to_string(request)?;
-        let res = self.inner.route(&req);
-
-        serde_json::from_str(&res).map_err(Error::from)
+        serde_json::to_string(request)
+            .map(|req| self.inner.route(&req))
+            .and_then(|res| serde_json::from_str(&res))
+            .map_err(Error::from)
     }
 
-    pub fn locate(&self, request: &RequestOptions) -> Result<RoutingOutput> {
-        let req = serde_json::to_string(request)?;
-        let res = self.inner.route(&req);
-
-        serde_json::from_str(&res).map_err(Error::from)
-    }
-
-    pub fn optimized_route(&self, request: &RequestOptions) -> Result<RoutingOutput> {
-        let req = serde_json::to_string(request)?;
-        let res = self.inner.optimized_route(&req);
-
-        serde_json::from_str(&res).map_err(Error::from)
-    }
-
+    /// [Matrix service][matrix-service] provides a quick computation of time and distance between a set of locations
+    /// and returns them to you in the resulting matrix table.
+    ///
+    /// [matrix-service]: https://valhalla.readthedocs.io/en/latest/api/matrix/api-reference/#time-distance-matrix-service-api-reference
     pub fn matrix(&self, request: &MatrixInput) -> Result<MatrixOutput> {
-        let req = serde_json::to_string(request)?;
-        let res = self.inner.matrix(&req);
-
-        serde_json::from_str(&res).map_err(Error::from)
+        serde_json::to_string(request)
+            .map(|req| self.inner.matrix(&req))
+            .and_then(|res| serde_json::from_str(&res))
+            .map_err(Error::from)
     }
 
+    /// [Isochrone service][isochrone-service] computes areas that are reachable within specified time intervals from a location.
+    ///
+    /// [isochrone-service]: https://valhalla.readthedocs.io/en/latest/api/isochrone/api-reference/#isochrone-isodistance-service-api-reference
     pub fn isochrone(&self, request: &IsochroneInput) -> Result<IsochroneOutput> {
-        let req = serde_json::to_string(request)?;
-        let res = self.inner.isochrone(&req);
-
-        serde_json::from_str(&res).map_err(Error::from)
+        serde_json::to_string(request)
+            .map(|req| self.inner.isochrone(&req))
+            .and_then(|res| serde_json::from_str(&res))
+            .map_err(Error::from)
     }
-
-    pub fn trace_route(&self, request: &str) -> String { self.inner.trace_route(&request) }
-
-    pub fn trace_attributes(&self, request: &str) -> String { self.inner.trace_attributes(&request) }
 
     /// The height method of the [elevation service][elevation-service].
     ///
     /// [elevation-service]: https://valhalla.readthedocs.io/en/latest/api/elevation/api-reference/#elevation-service-api-reference
     pub fn height(&self, request: &HeightRequest) -> Result<HeightResponse> {
-        let req = serde_json::to_string(request)?;
-        let res = self.inner.height(&req);
-
-        serde_json::from_str(&res).map_err(Error::from)
+        serde_json::to_string(request)
+            .map(|req| self.inner.height(&req))
+            .and_then(|res| serde_json::from_str(&res))
+            .map_err(Error::from)
     }
-
-    pub fn transit_available(&self, request: &str) -> String { self.inner.transit_available(&request) }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{
         data::{Contour, CostingModels, HeightRequest, IsochroneInput, Location, MatrixInput, RequestOptions, Units},
-        Actor,
+        Actor, ActorNative,
     };
 
     #[test]
@@ -186,70 +173,6 @@ mod tests {
         };
 
         let r = actor.route(&request).unwrap();
-        println!("{:?}", r);
-    }
-
-    #[test]
-    fn test_locate() {
-        let actor = Actor::new("valhalla.json");
-
-        let request = RequestOptions {
-            locations: vec![
-                Location {
-                    lat: Some(52.499078),
-                    lon: Some(13.418230),
-                    name: Some("Kottbusser Tor".into()),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.487331),
-                    lon: Some(13.425042),
-                    name: Some("Hermannplatz".into()),
-                    ..Default::default()
-                },
-            ],
-            costing: Some(CostingModels::Auto),
-            units: Some(Units::Kilometers),
-            id: Some("kotti_to_hermannplatz".into()),
-            ..Default::default()
-        };
-
-        let r = actor.locate(&request).unwrap();
-        println!("{:?}", r);
-    }
-
-    #[test]
-    fn test_optimazed_route() {
-        let actor = Actor::new("valhalla.json");
-
-        let request = RequestOptions {
-            locations: vec![
-                Location {
-                    lat: Some(52.499078),
-                    lon: Some(13.418230),
-                    name: Some("Kottbusser Tor".into()),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.4929306),
-                    lon: Some(13.4211985),
-                    name: Some("Bürknerstraße".into()),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.487331),
-                    lon: Some(13.425042),
-                    name: Some("Hermannplatz".into()),
-                    ..Default::default()
-                },
-            ],
-            costing: Some(CostingModels::Auto),
-            units: Some(Units::Kilometers),
-            id: Some("kotti_to_hermannplatz".into()),
-            ..Default::default()
-        };
-
-        let r = actor.optimized_route(&request).unwrap();
         println!("{:?}", r);
     }
 
