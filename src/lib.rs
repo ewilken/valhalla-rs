@@ -9,7 +9,8 @@ pub mod proto;
 pub use config::Config;
 use data::{HeightRequest, HeightResponse, IsochroneInput, IsochroneOutput, MatrixInput, MatrixOutput};
 pub use data::{RequestOptions, RoutingOutput};
-//use proto::Api;
+use prost::Message;
+use proto::Api;
 
 include_cpp! {
     #include "valhalla.h"
@@ -30,6 +31,16 @@ impl ActorNative {
         let inner = ffi::new_valhalla_client(&config_cxx_string);
 
         Self { inner }
+    }
+
+    pub fn proto_route(&self, request: &Api) -> Result<String> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.proto_route(&api_str);
+        Ok(response)
+        //Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
     // Calculates a route.
@@ -119,7 +130,8 @@ impl Actor {
             .map_err(Error::from)
     }
 
-    /// [Isochrone service][isochrone-service] computes areas that are reachable within specified time intervals from a location.
+    /// [Isochrone service][isochrone-service] computes areas that are reachable within specified time intervals from a
+    /// location.
     ///
     /// [isochrone-service]: https://valhalla.readthedocs.io/en/latest/api/isochrone/api-reference/#isochrone-isodistance-service-api-reference
     pub fn isochrone(&self, request: &IsochroneInput) -> Result<IsochroneOutput> {
@@ -144,8 +156,57 @@ impl Actor {
 mod tests {
     use crate::{
         data::{Contour, CostingModels, HeightRequest, IsochroneInput, Location, MatrixInput, RequestOptions, Units},
-        Actor, ActorNative,
+        Actor,
     };
+
+    use super::*;
+
+    #[test]
+    fn test_proto_route() {
+        let actor = ActorNative::new("valhalla.json");
+        let api = Api {
+            options: Some(proto::Options {
+                id: Some("kotti_to_hermannplatz".into()),
+                units: Some(0),
+                locations: vec![
+                    proto::Location {
+                        ll: Some(proto::LatLng {
+                            lat: Some(52.499078),
+                            lng: Some(13.418230),
+                        }),
+                        name: Some("Kottbusser Tor".into()),
+                        ..Default::default()
+                    },
+                    proto::Location {
+                        ll: Some(proto::LatLng {
+                            lat: Some(52.487331),
+                            lng: Some(13.425042),
+                        }),
+                        name: Some("Kottbusser Tor".into()),
+                        ..Default::default()
+                    },
+                ],
+                costing: Some(0),
+                costing_options: vec![proto::CostingOptions {
+                    transport_type: Some("car".into()),
+                    alley_factor: Some(1.0),
+                    use_highways: Some(0.5),
+                    use_tolls: Some(0.5),
+                    use_distance: Some(0.),
+                    height: Some(1.6),
+                    width: Some(1.9),
+                    shortest: Some(true),
+                    costing: Some(0),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        let r = actor.proto_route(&api).unwrap();
+        println!("{:?}", r);
+    }
 
     #[test]
     fn test_route() {

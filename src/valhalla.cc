@@ -2,6 +2,10 @@
 
 #include "valhalla/baldr/rapidjson_utils.h"
 #include "valhalla/tyr/actor.h"
+#include "valhalla/loki/worker.h"
+#include "valhalla/odin/worker.h"
+#include "valhalla/thor/worker.h"
+#include "valhalla/proto/api.pb.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <memory>
@@ -19,17 +23,43 @@ boost::property_tree::ptree configure(const std::string &config) {
 }
 
 class ValhallaClient::impl {
-  impl(const std::string &json) {
-    actor = std::make_unique<valhalla::tyr::actor_t>(
-        valhalla::tyr::actor_t(configure(json), false));
+  impl(const boost::property_tree::ptree & config) 
+      : actor(new valhalla::tyr::actor_t(config, false)),
+        reader(new valhalla::baldr::GraphReader(config.get_child("mjolnir"))),
+	loki_worker(config, reader),
+	thor_worker(config, reader),
+	odin_worker(config) {
   }
 
   friend ValhallaClient;
   std::unique_ptr<valhalla::tyr::actor_t> actor;
+
+  std::shared_ptr<valhalla::baldr::GraphReader> reader;
+  valhalla::loki::loki_worker_t loki_worker;
+  valhalla::thor::thor_worker_t thor_worker;
+  valhalla::odin::odin_worker_t odin_worker;
 };
 
 ValhallaClient::ValhallaClient(const std::string &json)
-    : impl(new class ValhallaClient::impl(json)) {}
+    : impl(new class ValhallaClient::impl(configure(json))) {}
+
+rust::string ValhallaClient::proto_route(const std::string &request_str) const {
+  // parse the request
+  valhalla::Api request;
+  if (!request.ParseFromString(request_str)) {
+      return request_str;
+  }
+
+  request.mutable_options()->set_action(valhalla::Options::route);
+  //valhalla::ParseApi(request_str, valhalla::Options::route, request);
+  // check the request and locate the locations in the graph
+  impl->loki_worker.route(request);
+  // route between the locations in the graph to find the best path
+  impl->thor_worker.route(request);
+  // get some directions back from them and serialize
+  auto bytes = impl->odin_worker.narrate(request);
+  return bytes;
+}
 
 rust::string ValhallaClient::route(const std::string &request) const {
   return this->impl->actor->route(request);
