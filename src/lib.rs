@@ -33,14 +33,14 @@ impl ActorNative {
         Self { inner }
     }
 
-    pub fn proto_route(&self, request: &Api) -> Result<String> {
+    pub fn proto_route(&self, request: &Api) -> Result<Api> {
         let mut buf = vec![];
         request.encode(&mut buf)?;
 
         cxx::let_cxx_string!(api_str = buf);
         let response = self.inner.proto_route(&api_str);
-        Ok(response)
-        //Message::decode(response.as_bytes()).map_err(Error::from)
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
     // Calculates a route.
