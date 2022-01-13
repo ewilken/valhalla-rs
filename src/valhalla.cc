@@ -9,6 +9,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <memory>
+#include <string>
 
 boost::property_tree::ptree configure(const std::string &config) {
   boost::property_tree::ptree pt;
@@ -43,7 +44,7 @@ class ValhallaClient::impl {
 ValhallaClient::ValhallaClient(const std::string &json)
     : impl(new class ValhallaClient::impl(configure(json))) {}
 
-rust::string ValhallaClient::proto_route(const std::string &request_str) const {
+std::string ValhallaClient::proto_route(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -57,7 +58,11 @@ rust::string ValhallaClient::proto_route(const std::string &request_str) const {
   // route between the locations in the graph to find the best path
   impl->thor_worker.route(request);
   // get some directions back from them and serialize
-  auto bytes = impl->odin_worker.narrate(request);
+  impl->odin_worker.narrate(request);
+
+  std::string bytes;
+  request.SerializeToString(&bytes);
+
   return bytes;
 }
 
