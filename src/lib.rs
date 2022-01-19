@@ -2,14 +2,9 @@ use anyhow::{Error, Result};
 use autocxx::include_cpp;
 use cxx::UniquePtr;
 
-mod config;
-pub mod data;
-pub mod proto;
-
-pub use config::Config;
-use data::{HeightRequest, HeightResponse, IsochroneInput, IsochroneOutput, MatrixInput, MatrixOutput};
-pub use data::{RequestOptions, RoutingOutput};
 use prost::Message;
+
+pub mod proto;
 use proto::Api;
 
 include_cpp! {
@@ -17,30 +12,23 @@ include_cpp! {
 
     safety!(unsafe)
 
-    generate!("ValhallaClient")
-    generate!("new_valhalla_client")
+    generate!("ValhallaJsonClient")
+    generate!("new_valhalla_json_client")
+
+    generate!("ValhallaProtobufClient")
+    generate!("new_valhalla_protobuf_client")
 }
 
-pub struct ActorNative {
-    inner: UniquePtr<ffi::ValhallaClient>,
+pub struct JsonActor {
+    inner: UniquePtr<ffi::ValhallaJsonClient>,
 }
 
-impl ActorNative {
+impl JsonActor {
     pub fn new(config: &str) -> Self {
         cxx::let_cxx_string!(config_cxx_string = config);
-        let inner = ffi::new_valhalla_client(&config_cxx_string);
+        let inner = ffi::new_valhalla_json_client(&config_cxx_string);
 
         Self { inner }
-    }
-
-    pub fn proto_route(&self, request: &Api) -> Result<Api> {
-        let mut buf = vec![];
-        request.encode(&mut buf)?;
-
-        cxx::let_cxx_string!(api_str = buf);
-        let response = self.inner.proto_route(&api_str);
-
-        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
     // Calculates a route.
@@ -100,228 +88,126 @@ impl ActorNative {
     }
 }
 
-pub struct Actor {
-    inner: ActorNative,
+pub struct ProtobufActor {
+    inner: UniquePtr<ffi::ValhallaProtobufClient>,
 }
 
-impl Actor {
+impl ProtobufActor {
     pub fn new(config: &str) -> Self {
-        Self {
-            inner: ActorNative::new(config),
-        }
+        cxx::let_cxx_string!(config_cxx_string = config);
+        let inner = ffi::new_valhalla_protobuf_client(&config_cxx_string);
+
+        Self { inner }
     }
 
-    /// Calculates a route.
-    pub fn route(&self, request: &RequestOptions) -> Result<RoutingOutput> {
-        serde_json::to_string(request)
-            .map(|req| self.inner.route(&req))
-            .and_then(|res| serde_json::from_str(&res))
-            .map_err(Error::from)
+    pub fn route(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.route(&api_str);
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    /// [Matrix service][matrix-service] provides a quick computation of time and distance between a set of locations
-    /// and returns them to you in the resulting matrix table.
-    ///
-    /// [matrix-service]: https://valhalla.readthedocs.io/en/latest/api/matrix/api-reference/#time-distance-matrix-service-api-reference
-    pub fn matrix(&self, request: &MatrixInput) -> Result<MatrixOutput> {
-        serde_json::to_string(request)
-            .map(|req| self.inner.matrix(&req))
-            .and_then(|res| serde_json::from_str(&res))
-            .map_err(Error::from)
+    pub fn locate(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.locate(&api_str);
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    /// [Isochrone service][isochrone-service] computes areas that are reachable within specified time intervals from a
-    /// location.
-    ///
-    /// [isochrone-service]: https://valhalla.readthedocs.io/en/latest/api/isochrone/api-reference/#isochrone-isodistance-service-api-reference
-    pub fn isochrone(&self, request: &IsochroneInput) -> Result<IsochroneOutput> {
-        serde_json::to_string(request)
-            .map(|req| self.inner.isochrone(&req))
-            .and_then(|res| serde_json::from_str(&res))
-            .map_err(Error::from)
+    pub fn optimized_route(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.optimized_route(&api_str);
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    /// The height method of the [elevation service][elevation-service].
-    ///
-    /// [elevation-service]: https://valhalla.readthedocs.io/en/latest/api/elevation/api-reference/#elevation-service-api-reference
-    pub fn height(&self, request: &HeightRequest) -> Result<HeightResponse> {
-        serde_json::to_string(request)
-            .map(|req| self.inner.height(&req))
-            .and_then(|res| serde_json::from_str(&res))
-            .map_err(Error::from)
-    }
-}
+    pub fn matrix(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
 
-#[cfg(test)]
-mod tests {
-    use crate::{
-        data::{Contour, CostingModels, HeightRequest, IsochroneInput, Location, MatrixInput, RequestOptions, Units},
-        Actor,
-    };
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.matrix(&api_str);
 
-    use super::*;
-
-    #[test]
-    fn test_proto_route() {
-        let actor = ActorNative::new("valhalla.json");
-        let api = Api {
-            options: Some(proto::Options {
-                id: Some("kotti_to_hermannplatz".into()),
-                units: Some(0),
-                locations: vec![
-                    proto::Location {
-                        ll: Some(proto::LatLng {
-                            lat: Some(52.499078),
-                            lng: Some(13.418230),
-                        }),
-                        name: Some("Kottbusser Tor".into()),
-                        ..Default::default()
-                    },
-                    proto::Location {
-                        ll: Some(proto::LatLng {
-                            lat: Some(52.487331),
-                            lng: Some(13.425042),
-                        }),
-                        name: Some("Kottbusser Tor".into()),
-                        ..Default::default()
-                    },
-                ],
-                costing: Some(0),
-                costing_options: vec![proto::CostingOptions {
-                    transport_type: Some("car".into()),
-                    alley_factor: Some(1.0),
-                    use_highways: Some(0.5),
-                    use_tolls: Some(0.5),
-                    use_distance: Some(0.),
-                    height: Some(1.6),
-                    width: Some(1.9),
-                    shortest: Some(true),
-                    costing: Some(0),
-                    ..Default::default()
-                }],
-                ..Default::default()
-            }),
-            ..Default::default()
-        };
-
-        let r = actor.proto_route(&api).unwrap();
-        println!("{:?}", r);
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    #[test]
-    fn test_route() {
-        let actor = Actor::new("valhalla.json");
+    pub fn isochrone(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
 
-        let request = RequestOptions {
-            locations: vec![
-                Location {
-                    lat: Some(52.499078),
-                    lon: Some(13.418230),
-                    name: Some("Kottbusser Tor".into()),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.487331),
-                    lon: Some(13.425042),
-                    name: Some("Hermannplatz".into()),
-                    ..Default::default()
-                },
-            ],
-            costing: Some(CostingModels::Auto),
-            units: Some(Units::Kilometers),
-            id: Some("kotti_to_hermannplatz".into()),
-            ..Default::default()
-        };
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.isochrone(&api_str);
 
-        let r = actor.route(&request).unwrap();
-        println!("{:?}", r);
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    #[test]
-    fn test_matrix() {
-        let actor = Actor::new("valhalla.json");
+    pub fn trace_route(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
 
-        let request = MatrixInput {
-            sources: vec![Location {
-                lat: Some(52.499078),
-                lon: Some(13.418230),
-                ..Default::default()
-            }],
-            targets: vec![
-                Location {
-                    lat: Some(52.4929306),
-                    lon: Some(13.4211985),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.487331),
-                    lon: Some(13.425042),
-                    ..Default::default()
-                },
-            ],
-            costing: Some(CostingModels::Auto),
-            units: Some(Units::Miles),
-            ..Default::default()
-        };
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.trace_route(&api_str);
 
-        let r = actor.matrix(&request).unwrap();
-        println!("{:?}", r);
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    #[test]
-    fn test_isochrone() {
-        let actor = Actor::new("valhalla.json");
+    pub fn trace_attributes(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
 
-        let request = IsochroneInput {
-            locations: vec![Location {
-                lat: Some(52.499078),
-                lon: Some(13.418230),
-                ..Default::default()
-            }],
-            costing: Some(CostingModels::Auto),
-            contours: vec![Contour {
-                time: 15.0,
-                color: None,
-            }],
-            id: None,
-        };
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.trace_attributes(&api_str);
 
-        let r = actor.isochrone(&request).unwrap();
-        println!("{:?}", r);
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 
-    #[test]
-    fn test_height() {
-        let actor = Actor::new("valhalla.json");
-        let mut req = HeightRequest {
-            range: Some(true),
-            shape: vec![
-                Location {
-                    lat: Some(52.499078),
-                    lon: Some(13.41823),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.4929306),
-                    lon: Some(13.4211985),
-                    ..Default::default()
-                },
-                Location {
-                    lat: Some(52.487331),
-                    lon: Some(13.425042),
-                    ..Default::default()
-                },
-            ],
-            id: None,
-        };
+    pub fn height(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
 
-        let res = actor.height(&req).unwrap();
-        assert!(res.range_height.is_some());
-        assert!(res.height.is_none());
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.height(&api_str);
 
-        req.range = None;
-        let res = actor.height(&req).unwrap();
-        assert!(res.range_height.is_none());
-        assert!(res.height.is_some());
+        Message::decode(response.as_bytes()).map_err(Error::from)
+    }
+
+    pub fn transit_available(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.transit_available(&api_str);
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
+    }
+
+    pub fn expansion(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.expansion(&api_str);
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
+    }
+
+    pub fn centroid(&self, request: &Api) -> Result<Api> {
+        let mut buf = vec![];
+        request.encode(&mut buf)?;
+
+        cxx::let_cxx_string!(api_str = buf);
+        let response = self.inner.centroid(&api_str);
+
+        Message::decode(response.as_bytes()).map_err(Error::from)
     }
 }
+
