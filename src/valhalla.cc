@@ -41,7 +41,8 @@ rust::string ValhallaJsonClient::locate(const std::string &request) const {
   return impl->actor->locate(request);
 }
 
-rust::string ValhallaJsonClient::optimized_route(const std::string &request) const {
+rust::string
+ValhallaJsonClient::optimized_route(const std::string &request) const {
   return impl->actor->optimized_route(request);
 }
 
@@ -57,7 +58,8 @@ rust::string ValhallaJsonClient::trace_route(const std::string &request) const {
   return impl->actor->trace_route(request);
 }
 
-rust::string ValhallaJsonClient::trace_attributes(const std::string &request) const {
+rust::string
+ValhallaJsonClient::trace_attributes(const std::string &request) const {
   return impl->actor->trace_attributes(request);
 }
 
@@ -65,7 +67,8 @@ rust::string ValhallaJsonClient::height(const std::string &request) const {
   return impl->actor->height(request);
 }
 
-rust::string ValhallaJsonClient::transit_available(const std::string &request) const {
+rust::string
+ValhallaJsonClient::transit_available(const std::string &request) const {
   return impl->actor->transit_available(request);
 }
 
@@ -98,7 +101,8 @@ class ValhallaProtobufClient::impl {
 ValhallaProtobufClient::ValhallaProtobufClient(const std::string &json)
     : impl(new class ValhallaProtobufClient::impl(configure(json))) {}
 
-std::string ValhallaProtobufClient::route(const std::string &request_str) const {
+std::string
+ValhallaProtobufClient::route(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -119,7 +123,8 @@ std::string ValhallaProtobufClient::route(const std::string &request_str) const 
   return bytes;
 }
 
-std::string ValhallaProtobufClient::locate(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::locate(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -134,7 +139,8 @@ std::string ValhallaProtobufClient::locate(const std::string& request_str) const
   return bytes;
 }
 
-std::string ValhallaProtobufClient::matrix(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::matrix(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -151,7 +157,8 @@ std::string ValhallaProtobufClient::matrix(const std::string& request_str) const
   return bytes;
 }
 
-std::string ValhallaProtobufClient::optimized_route(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::optimized_route(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -170,7 +177,8 @@ std::string ValhallaProtobufClient::optimized_route(const std::string& request_s
   return bytes;
 }
 
-std::string ValhallaProtobufClient::isochrone(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::isochrone(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -187,7 +195,8 @@ std::string ValhallaProtobufClient::isochrone(const std::string& request_str) co
   return bytes;
 }
 
-std::string ValhallaProtobufClient::trace_route(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::trace_route(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -206,7 +215,8 @@ std::string ValhallaProtobufClient::trace_route(const std::string& request_str) 
   return bytes;
 }
 
-std::string ValhallaProtobufClient::trace_attributes(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::trace_attributes(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -223,7 +233,8 @@ std::string ValhallaProtobufClient::trace_attributes(const std::string& request_
   return bytes;
 }
 
-std::string ValhallaProtobufClient::height(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::height(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -238,7 +249,8 @@ std::string ValhallaProtobufClient::height(const std::string& request_str) const
   return bytes;
 }
 
-std::string ValhallaProtobufClient::transit_available(const std::string& request_str) const {
+std::string ValhallaProtobufClient::transit_available(
+    const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -253,7 +265,8 @@ std::string ValhallaProtobufClient::transit_available(const std::string& request
   return bytes;
 }
 
-std::string ValhallaProtobufClient::expansion(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::expansion(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -270,7 +283,8 @@ std::string ValhallaProtobufClient::expansion(const std::string& request_str) co
   return bytes;
 }
 
-std::string ValhallaProtobufClient::centroid(const std::string& request_str) const {
+std::string
+ValhallaProtobufClient::centroid(const std::string &request_str) const {
   // parse the request
   valhalla::Api request;
   if (!request.ParseFromString(request_str)) {
@@ -289,6 +303,9 @@ std::string ValhallaProtobufClient::centroid(const std::string& request_str) con
   return bytes;
 }
 
-std::unique_ptr<ValhallaProtobufClient> new_valhalla_protobuf_client(const std::string &json) {
-  return std::unique_ptr<ValhallaProtobufClient>(new ValhallaProtobufClient(json));
+std::unique_ptr<ValhallaProtobufClient>
+new_valhalla_protobuf_client(const std::string &json) {
+  return std::unique_ptr<ValhallaProtobufClient>(
+      new ValhallaProtobufClient(json));
 }
+

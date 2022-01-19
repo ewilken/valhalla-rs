@@ -1,4 +1,7 @@
-use valhalla::{ProtobufActor, proto::{Api, Options, LatLng, Location, CostingOptions}};
+use valhalla::{
+    proto::{Api, CostingOptions, LatLng, Location, Options},
+    ProtobufActor,
+};
 
 #[test]
 fn test_proto_route() {
