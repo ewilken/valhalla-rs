@@ -210,4 +210,3 @@ impl ProtobufActor {
         Message::decode(response.as_bytes()).map_err(Error::from)
     }
 }
-

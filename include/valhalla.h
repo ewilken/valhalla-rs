@@ -24,7 +24,8 @@ private:
   std::shared_ptr<impl> impl;
 };
 
-std::unique_ptr<ValhallaJsonClient> new_valhalla_json_client(const std::string &json);
+std::unique_ptr<ValhallaJsonClient>
+new_valhalla_json_client(const std::string &json);
 
 class ValhallaProtobufClient {
 public:
@@ -46,5 +47,6 @@ private:
   std::shared_ptr<impl> impl;
 };
 
-std::unique_ptr<ValhallaProtobufClient> new_valhalla_protobuf_client(const std::string &json);
+std::unique_ptr<ValhallaProtobufClient>
+new_valhalla_protobuf_client(const std::string &json);
 
