@@ -24,7 +24,7 @@ fn test_proto_route() {
                         lat: Some(52.487331),
                         lng: Some(13.425042),
                     }),
-                    name: Some("Kottbusser Tor".into()),
+                    name: Some("Hermannplatz".into()),
                     ..Default::default()
                 },
             ],
