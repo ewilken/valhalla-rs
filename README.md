@@ -1,10 +1,10 @@
-# valhalla-rs (WIP)
+# valhalla-rs
 
 [![license: MIT/Apache-2.0](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](https://github.com/ewilken/valhalla-rs#license)
 
 Rust wrapper around the [Valhalla](https://github.com/valhalla/valhalla) routing engine.
 
-This aims to replicate the API exposed for [the in-tree Python bindings](https://github.com/valhalla/valhalla/tree/master/src/bindings/python) as Rust-familiar typing. For data exchange with the C++ signature we're probably just gonna string-convert back and forth for now.
+This aims to replicate the API exposed for [the in-tree Python bindings](https://github.com/valhalla/valhalla/tree/master/src/bindings/python) as Rust-familiar typing. Data structures are exported compiled from Valhalla's the in-tree protobuf, to be used on the [`valhalla::ProtobufActor`](https://github.com/ewilken/valhalla-rs/blob/main/src/lib.rs#L97). Alternatively, any JSON string can be used on the [`valhalla::JsonActor`](https://github.com/ewilken/valhalla-rs/blob/main/src/lib.rs#L28).
 
 ## OSRM Data Setup
 
@@ -40,10 +40,9 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
 
     cargo test -vvv -- --nocapture
 
-
 ### macOS
 
-    brew install automake cmake libtool protobuf-c boost-python libspatialite pkg-config sqlite3 jq curl wget czmq lz4 spatialite-tools unzip luajit bash coreutils binutils
+    brew install automake cmake libtool protobuf-c boost-python3 libspatialite pkg-config sqlite3 jq curl wget czmq lz4 spatialite-tools unzip luajit bash coreutils binutils
     export PATH="/usr/local/opt/binutils/bin:/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
     git submodule update --init --recursive
@@ -51,22 +50,22 @@ This aims to replicate the API exposed for [the in-tree Python bindings](https:/
     cargo build -vv
 
 #### libgeos linking
-If your version of geos is below 3.10.0 you have to remove the line with
-    .cxxflag("-DGEOS_INLINE")
-in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388 .
+
+If your version of geos is below 3.10.0, you have to remove the line
+
+```rust
+.cxxflag("-DGEOS_INLINE")
+```
+
+in the build.rs file. See https://github.com/valhalla/valhalla/issues/3388#issuecomment-961934388.
 
 ### Linux (`.deb` capable distros)
 
-```bash
-sudo apt install libcurl4-openssl-dev protobuf-compiler libprotobuf-dev \
-	libboost-all-dev libsqlite3-dev libspatialite-dev libgeos-dev libgeos++-dev \
-	libluajit-5.1-dev libclang-dev clang libkrb5-dev libzmq3-dev
-```
+    sudo apt install libcurl4-openssl-dev protobuf-compiler libprotobuf-dev libboost-all-dev libsqlite3-dev libspatialite-dev libgeos-dev libgeos++-dev libluajit-5.1-dev libclang-dev clang libkrb5-dev libzmq3-dev
 
 Also, you need to create a symbolic link for the `protoc` library to avoid the following error: `/usr/bin/ld: cannot find -lprotoc`
-```bash
-sudo ln -s /usr/lib/x86_64-linux-gnu/libprotoc.so.23.0.4 /usr/lib/x86_64-linux-gnu/libprotoc.so
-```
+
+    sudo ln -s /usr/lib/x86_64-linux-gnu/libprotoc.so.23.0.4 /usr/lib/x86_64-linux-gnu/libprotoc.so
 
 ## License
 

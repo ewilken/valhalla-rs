@@ -47,7 +47,6 @@ fn generate_bindings(out_dir: String) {
     println!("cargo:rustc-link-search={}/lib", out_dir);
     println!("cargo:rustc-link-lib=valhalla");
 
-    //println!("cargo:rustc-link-lib=prime_server");
     println!("cargo:rustc-link-lib=protoc");
     println!("cargo:rustc-link-lib=protobuf");
     println!("cargo:rustc-link-lib=zmq");
@@ -62,12 +61,45 @@ fn generate_bindings(out_dir: String) {
 }
 
 fn compile_protos() {
-    tonic_build::configure()
-        .build_client(false)
-        .build_server(false)
-        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
-        .format(false)
-        .compile(&["valhalla/proto/api.proto"], &["valhalla/proto/"])
+    let mut config = prost_build::Config::new();
+    config.type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
+
+    if cfg!(feature = "async-graphql-annotation") {
+        // TODO - Get the selection by path right instead of just matching by global names.
+        // https://docs.rs/prost-build/latest/prost_build/struct.Config.html#examples-3
+        config.type_attribute("Type", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("SideOfStreet", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("PreferredSide", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("State", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("RoadClass", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Units", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Format", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Action", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("DateTimeType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("ShapeMatch", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("FilterAction", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("DirectionsType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("ShapeFormat", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Costing", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Impact", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Traversability", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Use", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Surface", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("TravelMode", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("VehicleType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("PedestrianType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("BicycleType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("TransitType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("CycleLane", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("SacScale", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("Sidewalk", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("CardinalDirection", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("BssManeuverType", "#[derive(async_graphql::Enum)]");
+        config.type_attribute("StatisticType", "#[derive(async_graphql::Enum)]");
+    }
+
+    config
+        .compile_protos(&["valhalla/proto/api.proto"], &["valhalla/proto/"])
         .expect("compiling protos");
 }
 

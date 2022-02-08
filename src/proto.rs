@@ -1,1 +1,1 @@
-tonic::include_proto!("valhalla");
+include!(concat!(env!("OUT_DIR"), "/valhalla.rs"));
