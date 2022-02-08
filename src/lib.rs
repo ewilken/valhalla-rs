@@ -19,6 +19,12 @@ include_cpp! {
     generate!("new_valhalla_protobuf_client")
 }
 
+unsafe impl Send for ffi::ValhallaJsonClient {}
+unsafe impl Sync for ffi::ValhallaJsonClient {}
+
+unsafe impl Send for ffi::ValhallaProtobufClient {}
+unsafe impl Sync for ffi::ValhallaProtobufClient {}
+
 pub struct JsonActor {
     inner: UniquePtr<ffi::ValhallaJsonClient>,
 }
