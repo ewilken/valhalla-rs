@@ -10,8 +10,6 @@ fn compile() -> String {
         conf.cxxflag("-DGEOS_INLINE");
     }
 
-    conf.cxxflag("-pthread");
-
     let dst = conf
         .define("ENABLE_TESTS", "OFF")
         .define("ENABLE_BENCHMARKS", "OFF")
@@ -60,6 +58,7 @@ fn generate_bindings(out_dir: String) {
     println!("cargo:rustc-link-lib=luajit-5.1");
     println!("cargo:rustc-link-lib=geos");
     println!("cargo:rustc-link-lib=gssapi_krb5");
+    println!("cargo:rustc-link-lib=thread");
 }
 
 fn compile_protos() {
