@@ -10,6 +10,8 @@ fn compile() -> String {
         conf.cxxflag("-DGEOS_INLINE");
     }
 
+    conf.cxxflag("-pthread");
+
     let dst = conf
         .define("ENABLE_TESTS", "OFF")
         .define("ENABLE_BENCHMARKS", "OFF")
