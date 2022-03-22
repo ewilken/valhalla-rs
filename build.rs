@@ -60,6 +60,7 @@ fn generate_bindings(out_dir: String) {
     println!("cargo:rustc-link-lib=luajit-5.1");
     println!("cargo:rustc-link-lib=geos");
     println!("cargo:rustc-link-lib=gssapi_krb5");
+    println!("cargo:rustc-link-lib=m");
 }
 
 fn compile_protos() {
