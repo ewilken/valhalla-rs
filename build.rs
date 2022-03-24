@@ -15,9 +15,12 @@ fn compile() -> String {
     let dst = conf
         .define("ENABLE_TESTS", "OFF")
         .define("ENABLE_BENCHMARKS", "OFF")
+        .define("ENABLE_TOOLS", "OFF")
+        .define("ENABLE_DATA_TOOLS", "OFF")
         .define("ENABLE_HTTP", "OFF")
         .define("ENABLE_SERVICES", "OFF")
         .define("ENABLE_PYTHON_BINDINGS", "OFF")
+        .define("BUILD_SHARED_LIBS", "OFF")
         .define("CMAKE_BUILD_TYPE", build_type)
         .build();
 
