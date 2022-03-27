@@ -1,4 +1,4 @@
-fn compile() -> String {
+fn cmake_build() -> String {
     let build_type = if Ok("release".to_owned()) == std::env::var("PROFILE") {
         "Release"
     } else {
@@ -20,14 +20,16 @@ fn compile() -> String {
         .define("ENABLE_HTTP", "OFF")
         .define("ENABLE_SERVICES", "OFF")
         .define("ENABLE_PYTHON_BINDINGS", "OFF")
-        .define("BUILD_SHARED_LIBS", "OFF")
+        .define("ENABLE_THREAD_SAFE_TILE_REF_COUNT", "ON")
+        // .define("BUILD_SHARED_LIBS", "OFF") // turning this on throws a linker error
+        // .define("ENABLE_STATIC_LIBRARY_MODULES", "ON") // turning this on throws a linker error
         .define("CMAKE_BUILD_TYPE", build_type)
         .build();
 
     dst.display().to_string()
 }
 
-fn generate_bindings(out_dir: String) {
+fn generate_autocxx_bindings(out_dir: String) {
     let includes = vec![
         "src".to_string(),
         "include".to_string(),
@@ -50,20 +52,21 @@ fn generate_bindings(out_dir: String) {
     println!("cargo:rerun-if-changed=src/lib.rs");
 
     println!("cargo:rustc-link-search={}/lib", out_dir);
-    println!("cargo:rustc-link-lib=valhalla");
+    println!("cargo:rustc-link-lib=static=valhalla");
 
-    println!("cargo:rustc-link-lib=protoc");
+    // println!("cargo:rustc-link-lib=protoc"); // TODO - check whether we can leave this out
     println!("cargo:rustc-link-lib=protobuf");
-    println!("cargo:rustc-link-lib=zmq");
+    // println!("cargo:rustc-link-lib=zmq"); // TODO - check whether we can leave this out
     println!("cargo:rustc-link-lib=z");
-    println!("cargo:rustc-link-lib=boost_program_options");
-    println!("cargo:rustc-link-lib=curl");
-    println!("cargo:rustc-link-lib=spatialite");
-    println!("cargo:rustc-link-lib=sqlite3");
-    println!("cargo:rustc-link-lib=luajit-5.1");
-    println!("cargo:rustc-link-lib=geos");
-    println!("cargo:rustc-link-lib=gssapi_krb5");
-    println!("cargo:rustc-link-lib=m");
+    // println!("cargo:rustc-link-lib=boost_program_options"); // TODO - check whether we can leave this out
+    // println!("cargo:rustc-link-lib=spatialite"); // TODO - check whether we can leave this out
+    // println!("cargo:rustc-link-lib=sqlite3"); // TODO - check whether we can leave this out
+    // println!("cargo:rustc-link-lib=luajit-5.1"); // TODO - check whether we can leave this out
+    // println!("cargo:rustc-link-lib=geos"); // TODO - check whether we can leave this out
+    // println!("cargo:rustc-link-lib=gssapi_krb5"); // TODO - check whether we can leave this out
+    // println!("cargo:rustc-link-lib=m"); // TODO - check whether we can leave this out
+
+    // // println!("cargo:rustc-link-lib=stdc++"); // TODO - check whether we can leave this out
 }
 
 fn compile_protos() {
@@ -110,8 +113,8 @@ fn compile_protos() {
 }
 
 fn main() {
-    let out_dir = compile();
+    let out_dir = cmake_build();
     println!("OUT_DIR: {}", out_dir);
-    generate_bindings(out_dir);
+    generate_autocxx_bindings(out_dir);
     compile_protos();
 }
