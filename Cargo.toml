@@ -16,24 +16,24 @@ keywords = ["Valhalla", "OpenStreetMap", "routing"]
 
 [dependencies]
 anyhow = "1.0"
-autocxx = "0.16"
+autocxx = "0.19"
 cc = "1.0"
 cxx = "1.0"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0"
 serde_repr = "0.1"
-prost = "0.9"
+prost = "0.10"
 
 # optional
 async-graphql = { version = "3.0", optional = true }
 
 [build-dependencies]
 anyhow = "1.0"
-autocxx-build = "0.16"
+autocxx-build = "0.19"
 cc = "1.0"
 cmake = "0.1"
 cxx-build = "1.0"
-prost-build = "0.9"
+prost-build = "0.10"
 
 [features]
 default = []

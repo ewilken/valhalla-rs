@@ -40,7 +40,8 @@ fn generate_autocxx_bindings(out_dir: String) {
 
     let mut b = autocxx_build::Builder::new("src/lib.rs", &includes)
         .extra_clang_args(&["-std=c++14"])
-        .expect_build();
+        .build()
+        .expect("creating autocxx builder");
 
     b.opt_level(2)
         .cpp(true)
